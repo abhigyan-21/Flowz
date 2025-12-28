@@ -1,0 +1,134 @@
+.forecast-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 80px;
+}
+
+.forecast-header h2 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.forecast-toggle {
+    background: #EAEAEA;
+    border-radius: 20px;
+    padding: 4px;
+    display: flex;
+    width: 300px;
+    /* Wider toggle */
+}
+
+.f-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 16px;
+    background: transparent;
+    font-weight: 500;
+    color: #666;
+}
+
+.f-btn.active {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+/* Cards Row */
+.forecast-cards-row {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.forecast-card {
+    min-width: 100px;
+    background: #FFF9F0;
+    /* Slight color tint from mockup maybe? Or just white. Mockup has reddish/beige tint cards. */
+    background: #FCF8F5;
+    border-radius: 12px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.f-day {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.f-level {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.f-risk {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+}
+
+.f-risk.high {
+    background-color: #D32F2F;
+    /* Deep Red */
+    background-color: #C0392B;
+}
+
+.f-risk.moderate {
+    background-color: #E0E0E0;
+    /* Wait, mockup shows Moderate as Grey badge? Or light? */
+    /* Image 5: "Moderate" badge is greyish blue? "High" is red. "Low" is green. */
+    /* Wait, Image 5: "Wed 7.8m Moderate" - badge is Light Grey with Dark Text. "High" is Red Pill with White Text. "Low" is Green/Grey? */
+    /* Let's look closer. "High" is Red bg. "Moderate" is Grey bg. "Low" is Greenish Grey? */
+    /* I'll use simple colors. */
+    background-color: #E0E0E0;
+    color: #333;
+}
+
+.f-risk.low {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+
+/* Summary Section */
+.summary-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    background: #FAFAFA;
+    /* Very light grey */
+    padding: 16px 20px;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.sum-label {
+    font-size: 1rem;
+    color: #333;
+}
+
+.sum-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
