@@ -1,18 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/forecast.css';
+import forecastService from '../services/forecastService';
 
 const Forecast = () => {
     const [timeRange, setTimeRange] = useState('7d'); // '24h' | '7d'
+    const [forecastData, setForecastData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const forecastData = [
-        { day: 'Mon', date: '10.2m', risk: 'High', color: 'red' },
-        { day: 'Tue', date: '9.5m', risk: 'High', color: 'red' },
-        { day: 'Wed', date: '7.8m', risk: 'Moderate', color: 'orange' }, // Color logic usually css class
-        { day: 'Thu', date: '6.2m', risk: 'Low', color: 'green' },
-        { day: 'Fri', date: '5.5m', risk: 'Low', color: 'green' },
-        { day: 'Sat', date: '5.8m', risk: 'Low', color: 'green' },
-        { day: 'Sun', date: '6.1m', risk: 'Moderate', color: 'orange' },
-    ];
+    useEffect(() => {
+        const fetchForecast = async () => {
+            setLoading(true);
+            try {
+                // In real app, pass locationId from context or url
+                const response = await forecastService.getForecast('loc_mum', 'average');
+                setForecastData(response.data || []);
+            } catch (error) {
+                console.error("Failed to load forecast", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchForecast();
+    }, [timeRange]);
 
     return (
         <div className="forecast-container">
@@ -28,15 +37,19 @@ const Forecast = () => {
             </div>
 
             <div className="forecast-cards-row">
-                {forecastData.map((item, index) => (
-                    <div key={index} className="forecast-card">
-                        <div className="f-day">{item.day}</div>
-                        <div className="f-level">{item.date}</div>
-                        <div className={`f-risk ${item.risk.toLowerCase()}`}>
-                            {item.risk}
+                {loading ? (
+                    <div style={{ color: 'white', padding: '20px' }}>Loading forecast data...</div>
+                ) : (
+                    forecastData.map((item, index) => (
+                        <div key={index} className="forecast-card">
+                            <div className="f-day">{item.day}</div>
+                            <div className="f-level">{item.level}</div>
+                            <div className={`f-risk ${item.risk.toLowerCase()}`}>
+                                {item.risk}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
 
             <div className="summary-section">

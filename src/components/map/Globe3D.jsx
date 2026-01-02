@@ -46,7 +46,7 @@ const FLOOD_PREDICTION_DATA = [
     }
 ];
 
-const Globe3D = ({ center = { lat: 20.5937, lng: 78.9629, altitude: 2.0 }, onObjectClick }) => {
+const Globe3D = ({ center = { lat: 20.5937, lng: 78.9629, altitude: 2.0 }, onObjectClick, alerts = [] }) => {
     const globeEl = useRef();
     const [rivers, setRivers] = useState([]);
     const [hasWebGLError, setWebGLError] = useState(false);
@@ -62,14 +62,16 @@ const Globe3D = ({ center = { lat: 20.5937, lng: 78.9629, altitude: 2.0 }, onObj
         }
     }, [center]);
 
-    // Simple Alert Markers
-    const markerData = useMemo(() => [
-        { lat: 19.0760, lng: 72.8777, size: 0.5, color: '#E57373', name: 'Mumbai - Heavy Rain' },
-        { lat: 28.7041, lng: 77.1025, size: 0.4, color: '#FFB74D', name: 'Delhi - Heatwave' },
-        { lat: 13.0827, lng: 80.2707, size: 0.4, color: '#E57373', name: 'Chennai - Cyclone' },
-        { lat: 22.5726, lng: 88.3639, size: 0.3, color: 'white', name: 'Kolkata - Normal' },
-        { lat: 25.5, lng: 85.0, size: 0.6, color: 'red', name: 'Bihar - High Flood Risk' }
-    ], []);
+    // Map alerts to globe markers
+    const markerData = useMemo(() => {
+        return alerts.map(alert => ({
+            lat: alert.lat,
+            lng: alert.lng,
+            name: alert.name,
+            size: alert.severity.toLowerCase() === 'high' ? 0.6 : (alert.severity.toLowerCase() === 'moderate' ? 0.4 : 0.3),
+            color: alert.severity.toLowerCase() === 'high' ? 'red' : (alert.severity.toLowerCase() === 'moderate' ? 'orange' : 'green')
+        }));
+    }, [alerts]);
 
     if (hasWebGLError) {
         return <div style={{ color: 'white', textAlign: 'center', paddingTop: '20%' }}>3D Globe not supported on this device.</div>;

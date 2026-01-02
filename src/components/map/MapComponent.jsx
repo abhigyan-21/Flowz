@@ -16,15 +16,11 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const LeafletMap = () => {
+import alertService from '../../services/alertService';
+
+const LeafletMap = ({ alerts = [] }) => {
     const indiaCenter = [22.5937, 78.9629];
-    const alerts = [
-        { lat: 19.0760, lng: 72.8777, name: 'Mumbai - Heavy Rain', severity: 'High' },
-        { lat: 28.7041, lng: 77.1025, name: 'Delhi - Heatwave', severity: 'Moderate' },
-        { lat: 13.0827, lng: 80.2707, name: 'Chennai - Cyclone', severity: 'High' },
-        { lat: 22.5726, lng: 88.3639, name: 'Kolkata - Normal', severity: 'Low' },
-        { lat: 25.5, lng: 85.0, name: 'Bihar - Flood Risk', severity: 'High' }
-    ];
+    // Remove static alerts, use props
 
     return (
         <MapContainer
@@ -51,11 +47,25 @@ const LeafletMap = () => {
 };
 
 const MapComponent = () => {
+    const [alerts, setAlerts] = useState([]);
+
+    useEffect(() => {
+        const fetchAlerts = async () => {
+            try {
+                const response = await alertService.getAlerts();
+                setAlerts(response.data || []);
+            } catch (error) {
+                console.error("Failed to load map alerts", error);
+            }
+        };
+        fetchAlerts();
+    }, []);
+
     // We attempt to load the 3D Globe, but if it fails (WebGL error), the ErrorBoundary will show the LeafletMap
     return (
         <div className="map-wrapper" style={{ background: '#000' }}>
-            <ErrorBoundary fallback={<LeafletMap />}>
-                <Globe3D />
+            <ErrorBoundary fallback={<LeafletMap alerts={alerts} />}>
+                <Globe3D alerts={alerts} />
             </ErrorBoundary>
         </div>
     );

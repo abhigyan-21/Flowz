@@ -35,6 +35,7 @@ Flowz is a modern Response Management System frontend designed for real-time flo
 - **Styling**: Vanilla CSS (Modular & Variable-based)
 - **3D Visualization**: `react-globe.gl`, `three.js`
 - **Maps (Legacy)**: `leaflet`, `react-leaflet` (available but replaced by Globe)
+- **Data Layer**: `axios` (Mock API Services for functional demo)
 - **Charts**: `recharts`
 - **Routing**: `react-router-dom`
 - **Icons**: `lucide-react`
