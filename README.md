@@ -4,10 +4,11 @@ Flowz is a modern Response Management System frontend designed for real-time flo
 
 ## 🚀 Features
 
-### 🌍 3D Interactive Map
-- **Tech**: Powered by `react-globe.gl` and `three.js`.
-- **Experience**: Photorealistic 3D Earth model with topology and atmosphere.
-- **Interaction**: Click on alert markers to smoothly zoom and focus on specific regions. Space-themed background.
+### 🌍 3D Interactive Map (CesiumJS)
+- **High-Fidelity Rendering**: Terrain, Atmosphere, and Lighting powered by CesiumJS.
+- **Experience**: Photorealistic 3D Earth with Bing Maps Aerial imagery.
+- **Resilience**: Automatic fallback to WebGL Globe if 3D context fails.
+- **Interaction**: Animated rivers, pulse alerts, and smooth camera controls.
 
 ### 📊 Dashboard & Analytics
 - **Alerts Overlay**: Floating panel with toggle controls for "Alerts" vs "Evacuation" modes.
@@ -33,8 +34,7 @@ Flowz is a modern Response Management System frontend designed for real-time flo
 
 - **Framework**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
 - **Styling**: Vanilla CSS (Modular & Variable-based)
-- **3D Visualization**: `react-globe.gl`, `three.js`
-- **Maps (Legacy)**: `leaflet`, `react-leaflet` (available but replaced by Globe)
+- **3D Visualization**: **CesiumJS** (Primary), `react-globe.gl` (Fallback)
 - **Data Layer**: `axios` (Mock API Services for functional demo)
 - **Charts**: `recharts`
 - **Routing**: `react-router-dom`
