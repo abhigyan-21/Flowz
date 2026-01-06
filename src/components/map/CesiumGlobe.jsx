@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useMap } from '../../context/MapContext';
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 
@@ -8,6 +9,53 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 }, onObjectClick, alerts = [] }) => {
     const containerRef = useRef(null);
     const viewerRef = useRef(null);
+    const { viewTarget } = useMap();
+
+    // --- Date Control Logic ---
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [isEditingDate, setIsEditingDate] = useState(false);
+    const [dateInput, setDateInput] = useState("");
+
+    const handleDateChange = (days) => {
+        const newDate = new Date(currentDate);
+        newDate.setDate(newDate.getDate() + days);
+
+        // Validation: +/- 7 days range
+        const today = new Date();
+        const diffTime = Math.abs(newDate - today);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 7) {
+            setCurrentDate(newDate);
+        }
+    };
+
+    const handleInputSubmit = (e) => {
+        if (e.key === 'Enter') {
+            const parsedDate = new Date(dateInput);
+            if (!isNaN(parsedDate)) {
+                // Check range
+                const today = new Date();
+                const diffTime = Math.abs(parsedDate - today);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays <= 7) {
+                    setCurrentDate(parsedDate);
+                    setIsEditingDate(false);
+                } else {
+                    alert("Date must be within ±7 days of today.");
+                }
+            } else {
+                alert("Invalid Date Format. Try YYYY-MM-DD");
+            }
+        }
+    };
+
+    const formatDateDisplay = (date) => {
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) return "Present Day";
+        return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -133,6 +181,22 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         };
     }, []); // Run once on mount
 
+    // --- Listen for MapContext FlyTo Events ---
+    useEffect(() => {
+        const viewer = viewerRef.current;
+        if (!viewer || !viewTarget) return;
+
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(
+                viewTarget.lng,
+                viewTarget.lat,
+                viewTarget.altitude || 100000
+            ),
+            duration: 1.5,
+            easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT
+        });
+    }, [viewTarget]);
+
     // Update Alerts
     useEffect(() => {
         const viewer = viewerRef.current;
@@ -205,6 +269,81 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
 
     return (
         <div ref={containerRef} style={{ width: '100%', height: '100%', cursor: 'grab', position: 'relative' }}>
+            {/* Top Right Date Control */}
+            <div style={{
+                position: 'absolute',
+                top: '90px',
+                right: '20px',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(30, 41, 59, 0.8)', // Dark Slate with opacity
+                backdropFilter: 'blur(8px)',
+                padding: '8px 16px',
+                borderRadius: '50px',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+                <button
+                    onClick={() => handleDateChange(-1)}
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', color: '#E2E8F0' }}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                </button>
+
+                {isEditingDate ? (
+                    <input
+                        type="date"
+                        value={dateInput}
+                        min={new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                        max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                        onChange={(e) => setDateInput(e.target.value)}
+                        onKeyDown={handleInputSubmit}
+                        onBlur={() => setIsEditingDate(false)}
+                        autoFocus
+                        style={{
+                            border: 'none',
+                            background: 'transparent',
+                            fontSize: '1rem',
+                            fontWeight: '500',
+                            color: '#F8FAFC',
+                            outline: 'none',
+                            width: '130px',
+                            colorScheme: 'dark' // Ensure calendar popup matches dark theme
+                        }}
+                    />
+                ) : (
+                    <span
+                        onClick={() => {
+                            setIsEditingDate(true);
+                            setDateInput(currentDate.toISOString().split('T')[0]);
+                        }}
+                        style={{
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            color: '#F8FAFC',
+                            cursor: 'pointer',
+                            minWidth: '120px',
+                            textAlign: 'center',
+                            userSelect: 'none'
+                        }}
+                    >
+                        {formatDateDisplay(currentDate)}
+                    </span>
+                )}
+
+                <button
+                    onClick={() => handleDateChange(1)}
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', color: '#E2E8F0' }}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
             <button
                 onClick={resetView}
                 style={{
