@@ -1,30 +1,76 @@
-/* Dashboard Styles */
+/* Dashboard Styles - Dark Glassmorphism */
+/* Variables now in main.css */
 
 .overlay-panel {
-    width: 400px;
-    /* Fixed width for desktop */
+    width: 380px;
     max-width: 100%;
-    height: 100%;
-    background: var(--color-surface-translucent);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 20px;
-    padding: 24px;
+    height: calc(100vh - var(--header-height) - 40px);
+    /* Adjust for padding */
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    box-shadow: var(--shadow-lg);
+    gap: 20px;
+    box-shadow: var(--glass-shadow);
+    border: var(--glass-border);
     pointer-events: auto;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s ease;
+    /* overflow: hidden; Removed to let button protrude */
+    position: relative;
+    color: var(--text-primary);
 }
 
-/* Toggles */
+.overlay-panel.collapsed {
+    width: 60px;
+    padding: 20px 10px;
+}
+
+/* Hide content when collapsed */
+.overlay-panel.collapsed .toggle-container,
+.overlay-panel.collapsed .panel-scroll-content,
+.overlay-panel.collapsed .btn-view-all {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+}
+
+/* Collapse Toggle Button */
+.collapse-btn {
+    position: absolute;
+    top: 50%;
+    right: -24px;
+    /* Protrude */
+    transform: translateY(-50%);
+    width: 32px;
+    height: 64px;
+    background: var(--accent-color);
+    border-radius: 0 16px 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    /* Ensure on top */
+    color: white;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.collapse-btn:hover {
+    background: var(--color-primary-dark);
+    width: 36px;
+}
+
+/* Toggles (Segmented Control look) */
 .toggle-container {
     display: flex;
-    background: var(--color-bg-secondary);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 12px;
     padding: 4px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    position: relative;
 }
 
 .toggle-btn {
@@ -33,20 +79,36 @@
     border-radius: 8px;
     background: transparent;
     font-weight: 500;
-    color: var(--color-text-medium);
-    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
 }
 
 .toggle-btn.active {
-    background: var(--color-white);
-    color: var(--color-primary);
-    /* Primary Blue Text */
-    box-shadow: var(--shadow-sm);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
     font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .sub-toggle {
-    background: rgba(0, 0, 0, 0.05);
+    background: transparent;
+    gap: 12px;
+    padding: 0;
+}
+
+.sub-toggle .toggle-btn {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.sub-toggle .toggle-btn.active {
+    background: rgba(56, 189, 248, 0.15);
+    /* Tinted Blue */
+    color: var(--accent-color);
+    border-color: var(--accent-color);
 }
 
 /* Content Area */
@@ -54,39 +116,52 @@
     flex: 1;
     overflow-y: auto;
     padding-right: 4px;
-    /* for scrollbar */
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+}
+
+/* Scrollbar styling for dark theme */
+.panel-scroll-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.panel-scroll-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
 }
 
 .alert-placeholder {
-    background: #EEE;
+    background: rgba(255, 255, 255, 0.05);
     padding: 20px;
     border-radius: 12px;
     text-align: center;
-    color: #888;
+    color: var(--text-secondary);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
 .btn-view-all {
     width: 100%;
-    padding: 14px;
-    background: #EAEAEA;
-    color: #333;
+    padding: 16px;
+    background: rgba(30, 41, 59, 0.8);
+    color: var(--text-primary);
     border-radius: 12px;
     font-weight: 600;
     font-size: 1rem;
     margin-top: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s;
 }
 
 .btn-view-all:hover {
-    background: #e0e0e0;
+    background: rgba(51, 65, 85, 0.8);
+    border-color: var(--accent-color);
 }
 
 /* Alert Cards */
 .alert-card {
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 20px;
     position: relative;
     min-height: 100px;
     display: flex;
@@ -94,56 +169,55 @@
     justify-content: center;
     transition: all 0.2s ease;
     cursor: pointer;
-    background-color: var(--color-white);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    box-shadow: var(--shadow-sm);
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .alert-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--color-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
 }
 
+/* Colored Accents */
 .alert-card.high {
-    border-left: 4px solid var(--color-alert-red);
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.1), rgba(15, 23, 42, 0.6));
+    border-left: 4px solid #EF4444;
 }
 
 .alert-card.moderate {
-    border-left: 4px solid var(--color-alert-orange);
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.1), rgba(15, 23, 42, 0.6));
+    border-left: 4px solid #F59E0B;
 }
 
 .alert-card.info {
-    border-left: 4px solid var(--color-primary);
-}
-
-.alert-card.info {
-    background-color: #E0E0E0;
-    /* Light Grey */
-    color: #333;
+    background: linear-gradient(145deg, rgba(14, 165, 233, 0.1), rgba(15, 23, 42, 0.6));
+    border-left: 4px solid #0EA5E9;
 }
 
 .badge-recommended {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #42A5F5;
-    /* Blueish */
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
+    top: 12px;
+    right: 12px;
+    background: rgba(16, 185, 129, 0.2);
+    color: #34D399;
+    padding: 4px 10px;
+    border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .alert-body h3 {
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     font-size: 1.1rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .alert-body p {
     font-size: 0.9rem;
-    opacity: 0.9;
+    color: var(--text-secondary);
     margin: 0;
 }

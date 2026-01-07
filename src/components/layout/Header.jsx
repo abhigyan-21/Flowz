@@ -1,10 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, MapPin, ChevronDown, Crosshair } from 'lucide-react';
+import { Menu, MapPin, ChevronDown, Crosshair, Printer } from 'lucide-react';
 import locationService from '../../services/locationService';
 import { useMap } from '../../context/MapContext';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo_rms.png';
 
 const Header = () => {
     const location = useLocation();
@@ -96,7 +96,9 @@ const Header = () => {
         <header className="app-header">
             <div className="header-left">
                 <Link to="/">
-                    <img src={logo} alt="Flowz Logo" className="logo-img" />
+                    <div className="logo-wrapper">
+                        <img src={logo} alt="Flowz Logo" className="logo-img" />
+                    </div>
                 </Link>
             </div>
 
@@ -112,20 +114,6 @@ const Header = () => {
                     />
                     <button
                         className="search-toggle-btn"
-                        style={{
-                            position: 'absolute',
-                            right: '10px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            color: '#64748B', // Slate 500
-                            zIndex: 1
-                        }}
                         onClick={async () => {
                             if (!isSearching) {
                                 // Show list (fetch defaults if empty)
@@ -146,13 +134,9 @@ const Header = () => {
 
                     {/* Search Results Dropdown */}
                     {isSearching && searchResults.length > 0 && (
-                        <div className="search-dropdown" style={{
-                            position: 'absolute', top: '100%', left: 0, width: '100%',
-                            background: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                            marginTop: '4px', zIndex: 1002
-                        }}>
+                        <div className="search-dropdown">
                             {searchResults.map(city => (
-                                <div key={city.id} className="search-item" style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #eee' }}
+                                <div key={city.id} className="search-item"
                                     onClick={() => {
                                         lastSelectedQuery.current = city.name; // Prevent useEffect from re-opening
                                         setSearchQuery(city.name);
@@ -177,6 +161,14 @@ const Header = () => {
             </div>
 
             <div className="header-right">
+                <button
+                    className="btn-more"
+                    style={{ width: '40px', padding: 0, justifyContent: 'center' }}
+                    onClick={() => window.print()}
+                    title="Print View"
+                >
+                    <Printer size={20} />
+                </button>
                 <div className="dropdown-container" ref={dropdownRef}>
                     <button
                         className="btn-more"

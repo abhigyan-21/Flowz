@@ -53,6 +53,18 @@
     /* Layout */
     --header-height: 60px;
     --border-radius: 12px;
+
+    /* Global Dark Glassmorphism Theme */
+    --glass-bg: rgba(15, 23, 42, 0.85);
+    /* Darker opacity for header */
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --accent-color: #38BDF8;
+    --input-bg: rgba(30, 41, 59, 0.5);
+    --card-bg: rgba(30, 41, 59, 0.4);
+    --card-hover: rgba(51, 65, 85, 0.6);
 }
 
 * {
@@ -95,6 +107,7 @@ a {
 }
 
 /* Header Styles */
+/* Header Styles */
 .app-header {
     position: absolute;
     top: 0;
@@ -105,22 +118,48 @@ a {
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    background: rgba(255, 255, 255, 0.75);
-    /* Clean Translucent */
-    backdrop-filter: blur(12px);
-    /* Frost effect */
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     z-index: 1000;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    /* Darker border for light pages */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    /* Subtle shadow for lift */
+    border-bottom: var(--glass-border);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.logo-wrapper {
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    /* Clip logo to circle */
 }
 
 .logo-img {
-    height: 40px;
-    width: auto;
+    height: 100%;
+    width: 100%;
     object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transform: scale(1.1);
+    /* Slight zoom, stay within border */
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-left a {
+    display: flex;
+    align-items: center;
 }
 
 .header-center {
@@ -182,10 +221,21 @@ a {
     padding: 0 40px;
     /* Space for icons */
     font-size: 1rem;
-    background: white;
-    box-shadow: var(--shadow-sm);
+    background: var(--input-bg);
+    box-shadow: none;
     outline: none;
-    color: var(--color-text-dark);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: var(--accent-color);
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
 }
 
 .search-icon-left {
@@ -207,17 +257,19 @@ a {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: white;
-    box-shadow: var(--shadow-sm);
+    border-radius: 50%;
+    background: var(--input-bg);
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-link);
+    color: var(--accent-color);
     transition: background 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-my-location:hover {
-    background: #f5f5f5;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Dropdown */
@@ -229,39 +281,93 @@ a {
     display: flex;
     align-items: center;
     cursor: pointer;
-    background-color: #9E9E9E;
-    color: white;
+    cursor: pointer;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
     padding: 8px 16px;
     border-radius: 4px;
     font-weight: 500;
     font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s;
+}
+
+.btn-more:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+}
+
+/* Glassmorphism Dropdowns */
+.dropdown-menu,
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    margin-top: 8px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    border: var(--glass-border);
+    min-width: 160px;
+    overflow: hidden;
+    z-index: 1002;
+    animation: fadeIn 0.1s ease;
+    color: var(--text-primary);
 }
 
 .dropdown-menu {
-    position: absolute;
-    top: 100%;
     right: 0;
-    margin-top: 8px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: var(--shadow-md);
-    min-width: 160px;
-    overflow: hidden;
-    z-index: 1001;
-    animation: fadeIn 0.1s ease;
 }
 
-.dropdown-item {
+.search-dropdown {
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.dropdown-item,
+.search-item {
     display: block;
     padding: 12px 16px;
-    color: var(--color-text-dark);
+    color: var(--text-primary);
     font-size: 0.95rem;
-    transition: background 0.1s;
+    transition: all 0.1s;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.dropdown-item:hover {
-    background: #f5f5f5;
-    color: var(--color-primary);
+/* Search Toggle Button */
+.search-toggle-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    z-index: 1;
+    transition: color 0.2s;
+}
+
+.search-toggle-btn:hover {
+    color: var(--text-primary);
+}
+
+.search-item:last-child,
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover,
+.search-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
 }
 
 @keyframes fadeIn {
@@ -273,5 +379,56 @@ a {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    /* Hide UI controls */
+    .search-wrapper,
+    .btn-my-location,
+    .header-right,
+    .overlay-panel,
+    .collapse-btn,
+    .toggle-container,
+    .reset-view-btn,
+    .date-control-panel,
+    /* Hide date control */
+    button {
+        display: none !important;
+    }
+
+    /* Adjust Header */
+    .app-header {
+        position: absolute;
+        backdrop-filter: none;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        height: auto;
+        padding: 10px;
+    }
+
+    .logo-img {
+        height: 60px;
+        /* Larger logo for print */
+        filter: none;
+        margin-top: 0;
+    }
+
+    /* Ensure Map/Content full size */
+    .page-container,
+    .map-wrapper {
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    body {
+        background: white;
+        color: black;
     }
 }

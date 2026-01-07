@@ -270,7 +270,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
     return (
         <div ref={containerRef} style={{ width: '100%', height: '100%', cursor: 'grab', position: 'relative' }}>
             {/* Top Right Date Control */}
-            <div style={{
+            <div className="date-control-panel" style={{
                 position: 'absolute',
                 top: '90px',
                 right: '20px',
@@ -278,12 +278,12 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                background: 'rgba(30, 41, 59, 0.8)', // Dark Slate with opacity
+                background: 'var(--glass-bg)', // Dark Slate with opacity
                 backdropFilter: 'blur(8px)',
                 padding: '8px 16px',
                 borderRadius: '50px',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                border: '1px solid rgba(255,255,255,0.1)'
+                border: 'var(--glass-border)'
             }}>
                 <button
                     onClick={() => handleDateChange(-1)}

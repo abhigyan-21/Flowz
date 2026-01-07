@@ -4,6 +4,7 @@ import '../../styles/dashboard.css';
 import AlertCard from './AlertCard';
 import alertService from '../../services/alertService';
 import evacuationService from '../../services/evacuationService';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const OverlayPanel = () => {
     const [mainTab, setMainTab] = useState('alert'); // 'alert' | 'evacuation'
@@ -13,6 +14,9 @@ const OverlayPanel = () => {
     const [alerts, setAlerts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [evacData, setEvacData] = useState({ routes: [], shelters: [] });
+
+    // Collapsible State
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -45,7 +49,17 @@ const OverlayPanel = () => {
     const displayAlerts = alertSubTab === 'foryou' ? alerts.slice(0, 3) : alerts;
 
     return (
-        <div className="overlay-panel">
+        <div className={`overlay-panel ${isCollapsed ? 'collapsed' : ''}`}>
+
+            {/* Collapse Toggle Button */}
+            <div
+                className="collapse-btn"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                title={isCollapsed ? "Expand" : "Collapse"}
+            >
+                {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </div>
+
             {/* Main Toggle */}
             <div className="toggle-container main-toggle">
                 <button
@@ -99,7 +113,7 @@ const OverlayPanel = () => {
 
             <div className="panel-scroll-content">
                 {mainTab === 'alert' ? (
-                    <div className="alert-content" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div className="alert-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {loading ? (
                             <div className="alert-placeholder">Loading alerts...</div>
                         ) : (
@@ -117,7 +131,7 @@ const OverlayPanel = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="evac-content" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div className="evac-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {loading && <div className="alert-placeholder">Loading...</div>}
 
                         {!loading && evacSubTab === 'routes' && (
