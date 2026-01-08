@@ -3,8 +3,7 @@
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
-    overflow-y: auto;
-    height: 100%;
+
     padding-top: 80px;
     /* Space for fixed header */
     padding-bottom: 40px;

@@ -181,6 +181,9 @@ const Header = () => {
                         <div className="dropdown-menu">
                             <Link to="/analytics" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>Analytics</Link>
                             <Link to="/forecast" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>Predictions</Link>
+                            <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '4px 0' }}></div>
+                            <Link to="/emergency" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>Emergency Contacts</Link>
+                            <Link to="/about" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>About Us</Link>
                         </div>
                     )}
                 </div>

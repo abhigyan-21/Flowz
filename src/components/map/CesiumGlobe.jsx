@@ -14,7 +14,41 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
     // --- Date Control Logic ---
     const [currentDate, setCurrentDate] = useState(new Date());
     const [isEditingDate, setIsEditingDate] = useState(false);
+
     const [dateInput, setDateInput] = useState("");
+
+    const spinGlobe = (direction) => {
+        const viewer = viewerRef.current;
+        if (!viewer) return;
+
+        let totalRotation = 0;
+        // Spin 2 times (720 degrees) to simulate passage of time, landing back at start
+        const targetRotation = Cesium.Math.TWO_PI * 2;
+
+        const animate = () => {
+            if (!viewerRef.current) return;
+
+            // Ease out logic: Speed decreases as we get closer to target
+            const remaining = targetRotation - totalRotation;
+            // Base speed proportional to remaining, clamped to min/max
+            // Min speed ensures we don't slow down forever (Zeno's paradox)
+            // Max speed caps the start
+            let step = Math.max(Cesium.Math.toRadians(1), Math.min(Cesium.Math.toRadians(15), remaining * 0.08));
+
+            if (remaining <= step) {
+                // Last step
+                viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, -direction * remaining);
+                // Immediately fly back to India smoothly
+                resetView();
+            } else {
+                viewer.camera.rotate(Cesium.Cartesian3.UNIT_Z, -direction * step);
+                totalRotation += step;
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    };
 
     const handleDateChange = (days) => {
         const newDate = new Date(currentDate);
@@ -27,6 +61,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
 
         if (diffDays <= 7) {
             setCurrentDate(newDate);
+            spinGlobe(days > 0 ? 1 : -1);
         }
     };
 
@@ -40,7 +75,9 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                 if (diffDays <= 7) {
+                    const diff = parsedDate - currentDate;
                     setCurrentDate(parsedDate);
+                    spinGlobe(diff > 0 ? 1 : -1);
                     setIsEditingDate(false);
                 } else {
                     alert("Date must be within ±7 days of today.");
