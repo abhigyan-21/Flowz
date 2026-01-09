@@ -61,6 +61,8 @@ Flowz is a modern Response Management System frontend designed for real-time flo
 4.  **Open in Browser**
     Visit `http://localhost:5173` to view the application.
 
+You can also view existing deployements.
+
 ## 📁 Project Structure
 
 ```
