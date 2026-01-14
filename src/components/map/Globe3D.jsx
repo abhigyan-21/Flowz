@@ -7,28 +7,100 @@ import * as THREE from 'three';
 const RIVER_GEOJSON = {
     type: "FeatureCollection",
     features: [
+        // Ganga / Bhagirathi–Hooghly
         {
             type: "Feature",
             geometry: {
                 type: "LineString",
                 coordinates: [
-                    [79.0, 30.0], [78.0, 29.0], [77.5, 28.5], [80.0, 26.0], [82.0, 25.5],
-                    [85.0, 25.5], [87.0, 25.0], [88.0, 24.0], [90.0, 23.0]
-                    // Simplified points flowing from Himalayas to Bay of Bengal
+                    [88.1, 24.0],   // Murshidabad
+                    [88.3, 23.5],   // Nadia
+                    [88.4, 22.9],   // Hooghly
+                    [88.36, 22.57]  // Kolkata
                 ]
             },
-            properties: { name: "Ganga", color: "#4FC3F7" }
+            properties: { name: "Ganga (Bhagirathi–Hooghly)", color: "#4FC3F7" }
         },
+
+        // Teesta
         {
             type: "Feature",
             geometry: {
                 type: "LineString",
                 coordinates: [
-                    [77.0, 31.0], [77.2, 29.0], [77.1, 28.6], [77.5, 28.5]
-                    // Simplified Yamuna tributary
+                    [88.6, 27.1],   // Sikkim origin (near)
+                    [88.7, 26.6],   // Jalpaiguri
+                    [88.8, 26.3]    // Enters Bangladesh
                 ]
             },
-            properties: { name: "Yamuna", color: "#81D4FA" }
+            properties: { name: "Teesta", color: "#81D4FA" }
+        },
+
+        // Damodar
+        {
+            type: "Feature",
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [85.9, 23.6],   // Jharkhand
+                    [87.0, 23.3],   // Bankura
+                    [87.9, 22.6]    // Hooghly confluence
+                ]
+            },
+            properties: { name: "Damodar", color: "#4DD0E1" }
+        },
+
+        // Rupnarayan
+        {
+            type: "Feature",
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [86.7, 22.8],   // Medinipur
+                    [87.7, 22.3]    // Bay of Bengal
+                ]
+            },
+            properties: { name: "Rupnarayan", color: "#26C6DA" }
+        },
+
+        // Subarnarekha
+        {
+            type: "Feature",
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [86.2, 22.6],   // Jharkhand
+                    [87.0, 22.1]    // Bay of Bengal
+                ]
+            },
+            properties: { name: "Subarnarekha", color: "#00BCD4" }
+        },
+
+        // Mahananda
+        {
+            type: "Feature",
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [88.1, 26.9],   // Darjeeling foothills
+                    [88.3, 25.9],   // Malda
+                    [88.1, 25.4]    // Ganga confluence
+                ]
+            },
+            properties: { name: "Mahananda", color: "#80DEEA" }
+        },
+
+        // Ajay
+        {
+            type: "Feature",
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [87.1, 23.9],   // Jharkhand
+                    [88.1, 23.6]    // Bhagirathi confluence
+                ]
+            },
+            properties: { name: "Ajay", color: "#B2EBF2" }
         }
     ]
 };
@@ -123,7 +195,7 @@ const Globe3D = ({ center = { lat: 20.5937, lng: 78.9629, altitude: 2.0 }, onObj
                 atmosphereAltitude={0.15}
 
                 // Error boundary for WebGL context loss
-                onGlobeReady={() => console.log("Globe Ready")}
+                onGlobeReady={() => { }}
                 rendererConfig={{ antialias: true, alpha: true }}
             />
         );

@@ -1,4 +1,4 @@
-import apiClient from './apiClient';
+
 
 const forecastService = {
     // Get forecast for a specific location

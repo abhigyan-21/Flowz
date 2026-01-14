@@ -394,6 +394,10 @@ a {
 
 /* Print Styles */
 @media print {
+    @page {
+        margin: 0;
+    }
+
 
     /* Hide UI controls */
     .search-wrapper,

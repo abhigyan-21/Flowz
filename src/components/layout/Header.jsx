@@ -1,13 +1,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, MapPin, ChevronDown, Crosshair, Printer } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, ChevronDown, Crosshair, Printer } from 'lucide-react';
 import locationService from '../../services/locationService';
 import { useMap } from '../../context/MapContext';
 import logo from '../../assets/logo_rms.png';
 
 const Header = () => {
-    const location = useLocation();
     const { flyTo } = useMap();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -15,7 +14,37 @@ const Header = () => {
     const lastSelectedQuery = useRef(null); // Track last selected query to prevent auto-reopen
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [recentSearches, setRecentSearches] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
+
+    // Load Recents
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('flowz_recent_searches');
+            if (saved) setRecentSearches(JSON.parse(saved));
+        } catch (e) {
+            console.error(e);
+        }
+    }, []);
+
+    const addToRecents = (city) => {
+        const newRecents = [city, ...recentSearches.filter(r => r.id !== city.id)].slice(0, 4);
+        setRecentSearches(newRecents);
+        localStorage.setItem('flowz_recent_searches', JSON.stringify(newRecents));
+    };
+
+    const handleSelectCity = (city) => {
+        lastSelectedQuery.current = city.name;
+        setSearchQuery(city.name);
+        setIsSearching(false);
+        addToRecents(city);
+
+        flyTo({
+            lat: city.lat,
+            lng: city.lng,
+            altitude: 50000
+        });
+    };
 
     // Debounce search
     useEffect(() => {
@@ -95,10 +124,13 @@ const Header = () => {
     return (
         <header className="app-header">
             <div className="header-left">
-                <Link to="/">
+                <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div className="logo-wrapper">
                         <img src={logo} alt="Flowz Logo" className="logo-img" />
                     </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '2px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif" }}>
+                        GIRDHAR
+                    </span>
                 </Link>
             </div>
 
@@ -111,6 +143,12 @@ const Header = () => {
                         placeholder="Search city (e.g. Mumbai)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => setIsSearching(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && searchResults.length > 0) {
+                                handleSelectCity(searchResults[0]);
+                            }
+                        }}
                     />
                     <button
                         className="search-toggle-btn"
@@ -133,22 +171,33 @@ const Header = () => {
                     </button>
 
                     {/* Search Results Dropdown */}
-                    {isSearching && searchResults.length > 0 && (
+                    {isSearching && (
                         <div className="search-dropdown">
+                            {/* Recent Searches */}
+                            {recentSearches.length > 0 && !searchQuery && (
+                                <>
+                                    <div style={{
+                                        padding: '8px 12px',
+                                        fontSize: '0.75rem',
+                                        textTransform: 'uppercase',
+                                        color: 'rgba(255,255,255,0.4)',
+                                        fontWeight: '600',
+                                        letterSpacing: '0.5px'
+                                    }}>
+                                        Recent
+                                    </div>
+                                    {recentSearches.map(city => (
+                                        <div key={city.id} className="search-item" onClick={() => handleSelectCity(city)}>
+                                            <span style={{ opacity: 0.7, marginRight: '8px' }}>⏱️</span> {city.name}
+                                        </div>
+                                    ))}
+                                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '4px 0' }}></div>
+                                </>
+                            )}
+
+                            {/* Search Results / Suggestions */}
                             {searchResults.map(city => (
-                                <div key={city.id} className="search-item"
-                                    onClick={() => {
-                                        lastSelectedQuery.current = city.name; // Prevent useEffect from re-opening
-                                        setSearchQuery(city.name);
-                                        setIsSearching(false);
-                                        // Fly to city location
-                                        flyTo({
-                                            lat: city.lat,
-                                            lng: city.lng,
-                                            altitude: 50000
-                                        });
-                                    }}
-                                >
+                                <div key={city.id} className="search-item" onClick={() => handleSelectCity(city)}>
                                     {city.name}
                                 </div>
                             ))}

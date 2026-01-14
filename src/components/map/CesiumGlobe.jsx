@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMap } from '../../context/MapContext';
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
+import { INDIAN_RIVERS } from '../../data/indianRivers';
+import { INDIA_OUTLINE } from '../../data/indiaOutline';
 
 // Token provided by user
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YWJlZGNhNC0yYjgwLTQxODMtYTJkZC1mNGMxN2I1YzI5MTUiLCJpZCI6Mzc0NDk5LCJpYXQiOjE3Njc0MTc5NDR9.JlBw7CT4ZHFSCUFkgzr1Y5hnDajNjw1NaG4_bqNuqVI';
@@ -125,10 +127,17 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         controller.minimumZoomDistance = 1000; // 1km min zoom
         controller.maximumZoomDistance = 20000000; // 20,000km max zoom
 
-        // Load Terrain Synchronously (Cesium 1.136+)
+        // Load Terrain (Async nature handled)
         try {
             if (viewer.scene.setTerrain) {
-                viewer.scene.setTerrain(Cesium.Terrain.fromWorldTerrain());
+                // Ensure we handle the promise if fromWorldTerrain returns one
+                Promise.resolve(Cesium.Terrain.fromWorldTerrain())
+                    .then(terrainProvider => {
+                        if (viewerRef.current && !viewerRef.current.isDestroyed()) {
+                            viewer.scene.setTerrain(terrainProvider);
+                        }
+                    })
+                    .catch(e => console.error("Failed to load terrain", e));
             }
         } catch (e) {
             console.error("Failed to initialize terrain", e);
@@ -153,29 +162,97 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         // --- Animated River Flow (using Stripe Material Offset) ---
         let startTime = Date.now();
 
-        const riverCoordinates = [
-            79.0, 30.0, 78.0, 29.0, 77.5, 28.5, 80.0, 26.0, 82.0, 25.5,
-            85.0, 25.5, 87.0, 25.0, 88.0, 24.0, 90.0, 23.0
-        ];
+        // --- Indian Rivers Data ---
+        // Use the imported data directly
+        const RIVER_DATA = INDIAN_RIVERS;
 
-        viewer.entities.add({
-            name: "Ganga River Flow",
-            polyline: {
-                positions: Cesium.Cartesian3.fromDegreesArray(riverCoordinates),
-                width: 5,
-                material: new Cesium.StripeMaterialProperty({
-                    evenColor: Cesium.Color.fromCssColorString('#0EA5E9'), // River Blue
-                    oddColor: Cesium.Color.fromCssColorString('#0EA5E9').withAlpha(0.2), // Transparent gap
-                    repeat: 20,
-                    offset: new Cesium.CallbackProperty(() => {
-                        return (Date.now() - startTime) * 0.0002; // Slower animation speed
-                    }, false),
-                    orientation: Cesium.StripeOrientation.VERTICAL
-                }),
-                clampToGround: true
+        const riverEntities = [];
+
+        // Helper to smooth coordinates using Catmull-Rom Spline
+        const getSmoothPath = (coordinates) => {
+            if (coordinates.length < 2) return Cesium.Cartesian3.fromDegreesArray(coordinates.flat());
+
+            const positions = coordinates.map(c => Cesium.Cartesian3.fromDegrees(c[0], c[1]));
+
+            // Catmull-Rom Spline needs at least 2 points.
+            const spline = new Cesium.CatmullRomSpline({
+                times: Array.from({ length: positions.length }, (_, i) => i / (positions.length - 1)),
+                points: positions
+            });
+
+            const smoothedPositions = [];
+            // Increase samples for smoothness (more samples = smoother curve)
+            const samples = positions.length * 20;
+            for (let i = 0; i <= samples; i++) {
+                smoothedPositions.push(spline.evaluate(i / samples));
             }
+            return smoothedPositions;
+        };
+
+        RIVER_DATA.features.forEach(feature => {
+            const smoothedPositions = getSmoothPath(feature.geometry.coordinates);
+
+            // Draw River Line
+            const entity = viewer.entities.add({
+                name: feature.properties.name,
+                polyline: {
+                    positions: smoothedPositions,
+                    width: 3, // Thinner lines (was 5)
+                    material: new Cesium.StripeMaterialProperty({
+                        evenColor: Cesium.Color.fromCssColorString(feature.properties.color).withAlpha(0.8),
+                        oddColor: Cesium.Color.fromCssColorString(feature.properties.color).withAlpha(0.1), // Lighter gap
+                        repeat: 10,
+                        offset: new Cesium.CallbackProperty(() => {
+                            return (Date.now() - startTime) * 0.0001; // Slower speed (was 0.0002)
+                        }, false),
+                        orientation: Cesium.StripeOrientation.VERTICAL
+                    }),
+                    clampToGround: true
+                }
+            });
+            riverEntities.push(entity);
+
+            // Add River Label
+            const coords = feature.geometry.coordinates;
+            const midPointIndex = Math.floor(coords.length / 2);
+            const midPoint = coords[midPointIndex];
+
+            const labelEntity = viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(midPoint[0], midPoint[1]),
+                label: {
+                    text: feature.properties.name,
+                    font: '12px sans-serif', // Smaller font
+                    fillColor: Cesium.Color.WHITE,
+                    outlineColor: Cesium.Color.BLACK,
+                    outlineWidth: 3,
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    pixelOffset: new Cesium.Cartesian2(0, -8),
+                    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0.0, 3000000.0),
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                }
+            });
+            riverEntities.push(labelEntity);
         });
 
+        // Draw India Border
+        INDIA_OUTLINE.features.forEach(feature => {
+            if (feature.geometry.type === "Polygon") {
+                const coordinates = feature.geometry.coordinates[0]; // Outer ring
+                const positions = coordinates.flat();
+
+                viewer.entities.add({
+                    name: "India Border",
+                    polyline: {
+                        positions: Cesium.Cartesian3.fromDegreesArray(positions),
+                        width: 2, // Thinner line
+                        material: new Cesium.ColorMaterialProperty(Cesium.Color.WHITE.withAlpha(0.6)), // 60% opacity
+                        clampToGround: true,
+                        zIndex: 100
+                    }
+                });
+            }
+        });
 
         // --- Cursor Interaction (Grab/Grabbing) ---
         const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);

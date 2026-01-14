@@ -1,12 +1,12 @@
-import apiClient from './apiClient';
+
 
 // Mock data for development
 const MOCK_ALERTS = [
-    { id: 1, lat: 19.0760, lng: 72.8777, name: 'Mumbai - Heavy Rain', severity: 'High', type: 'rainfall' },
-    { id: 2, lat: 28.7041, lng: 77.1025, name: 'Delhi - Heatwave', severity: 'Moderate', type: 'heat' },
-    { id: 3, lat: 13.0827, lng: 80.2707, name: 'Chennai - Cyclone', severity: 'High', type: 'cyclone' },
-    { id: 4, lat: 22.5726, lng: 88.3639, name: 'Kolkata - Normal', severity: 'Low', type: 'normal' },
-    { id: 5, lat: 25.5, lng: 85.0, name: 'Bihar - Flood Risk', severity: 'High', type: 'flood' }
+    { id: 1, lat: 22.5726, lng: 88.3639, name: 'Kolkata - Heavy Rain', severity: 'High', type: 'rainfall' },
+    { id: 2, lat: 27.0410, lng: 88.2663, name: 'Darjeeling - Landslide Risk', severity: 'High', type: 'landslide' },
+    { id: 3, lat: 21.8380, lng: 88.8961, name: 'Sundarbans - Flood Warning', severity: 'Moderate', type: 'flood' },
+    { id: 4, lat: 21.6266, lng: 87.5074, name: 'Digha - High Tide', severity: 'Moderate', type: 'tide' },
+    { id: 5, lat: 26.7271, lng: 88.3953, name: 'Siliguri - Thunderstorm', severity: 'Low', type: 'storm' }
 ];
 
 const alertService = {
