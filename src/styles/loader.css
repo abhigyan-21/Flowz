@@ -1,0 +1,131 @@
+/* Fullscreen Loader Container */
+.water-loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0f172a;
+    /* Dark Slate background */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Text floating above waves */
+.loader-text {
+    position: relative;
+    /* Not absolute, stay in center of flex container */
+    z-index: 50;
+    font-family: 'Outfit', sans-serif;
+    font-size: 5vw;
+    font-weight: 800;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    animation: textEntry 1s ease-out forwards 0.5s;
+    /* Delay slightly */
+}
+
+/* 
+   THE WATER CONTAINER 
+   - 120vh height: Taller than screen.
+   - top: 0: Anchored to top.
+   - transform: translate3d(0, 100vh, 0): Starts pushed down by full viewport height.
+   - Animation: Moves to translate3d(0, -20vh, 0).
+   - Will-change: transform -> optimizing for GPU.
+*/
+.water-fill {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 120vh;
+    top: 0;
+    z-index: 20;
+    transform: translate3d(0, 100vh, 0);
+    will-change: transform;
+    animation: riseUpRobust 4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes riseUpRobust {
+    0% { transform: translate3d(0, 100vh, 0); }
+    100% { transform: translate3d(0, -20vh, 0); }
+}
+
+/* Solid body of water */
+.water-body {
+    width: 100%;
+    height: 100%;
+    background: #42a5f5;
+    /* Matches Front Wave (Light Blue) */
+    position: relative;
+}
+
+/* Wave Common Styles */
+.wave {
+    position: absolute;
+    bottom: 100%;
+    /* Sits on top of the water body */
+    left: 0;
+    width: 200%;
+    background-repeat: repeat-x;
+    background-size: 50% 100%;
+    transform-origin: center bottom;
+}
+
+/* Layer 1: BACK (Darkest) */
+.wave.back {
+    height: 180px;
+    margin-bottom: -5px;
+    z-index: 1;
+    /* Deep Navy Blue #003366 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 100' preserveAspectRatio='none'%3E%3Cpath d='M0,50 C200,80 400,20 600,50 C750,70 800,50 800,50 V100 H0 Z' fill='%23003366'/%3E%3C/svg%3E");
+    animation: waveScroll 15s linear infinite;
+}
+
+/* Layer 2: MIDDLE */
+.wave.middle {
+    height: 140px;
+    margin-bottom: -20px;
+    z-index: 2;
+    /* Medium Royal Blue #0066cc */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 100' preserveAspectRatio='none'%3E%3Cpath d='M0,50 C150,90 350,10 500,50 C650,90 750,50 800,50 V100 H0 Z' fill='%230066cc'/%3E%3C/svg%3E");
+    animation: waveScroll 10s linear infinite reverse;
+}
+
+/* Layer 3: FRONT (Matches body) */
+.wave.front {
+    height: 100px;
+    margin-bottom: -1px;
+    /* Seamless join */
+    z-index: 3;
+    /* Sky Blue #42a5f5 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 100' preserveAspectRatio='none'%3E%3Cpath d='M0,50 C200,30 400,90 600,50 C750,30 800,50 800,50 V100 H0 Z' fill='%2342a5f5'/%3E%3C/svg%3E");
+    animation: waveScroll 6s linear infinite;
+}
+
+@keyframes waveScroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes textEntry {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
