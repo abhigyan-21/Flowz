@@ -14,7 +14,7 @@ const WaterLoader = ({ onFinish }) => {
 
     return (
         <div className="water-loader-container">
-            <div className="loader-text">GIRDHAR</div>
+            <div className="loader-text">GIRIDHAR</div>
             <div className="water-fill">
                 {/* 3 Wave Layers */}
                 <div className="wave back"></div>

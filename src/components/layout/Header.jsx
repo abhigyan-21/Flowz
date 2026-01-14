@@ -129,7 +129,7 @@ const Header = () => {
                         <img src={logo} alt="Flowz Logo" className="logo-img" />
                     </div>
                     <span style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '2px', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif" }}>
-                        GIRDHAR
+                        GIRIDHAR
                     </span>
                 </Link>
             </div>
