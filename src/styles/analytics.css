@@ -110,3 +110,59 @@
 .chart-wrapper {
     width: 100%;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .analytics-container {
+        padding: 16px;
+        padding-top: calc(var(--header-height) + 20px);
+        /* Adjust for taller mobile header */
+        padding-bottom: 80px;
+        /* Space for bottom interaction or just aesthetic */
+    }
+
+    .analytics-header h2 {
+        font-size: 1.25rem;
+        margin-bottom: 16px;
+    }
+
+    .stats-row {
+        gap: 12px;
+    }
+
+    .stats-card {
+        min-width: 100%;
+        /* Stack cards fully on mobile */
+        padding: 16px;
+    }
+
+    .stats-value {
+        font-size: 1.75rem;
+    }
+
+    /* Tabs scrollable */
+    .chart-tabs {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        border-radius: 12px;
+    }
+
+    .chart-section {
+        padding: 16px;
+        overflow-x: hidden;
+        /* Prevent page scroll */
+    }
+
+    .chart-wrapper {
+        overflow-x: auto;
+        /* Allow chart to scroll locally if needed */
+        padding-bottom: 10px;
+    }
+
+    /* Ensure charts have min-width so they don't squish */
+    .chart-wrapper>div {
+        /* Recharts container usually */
+        min-width: 500px;
+    }
+}

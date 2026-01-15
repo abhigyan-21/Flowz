@@ -221,3 +221,107 @@
     color: var(--text-secondary);
     margin: 0;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .overlay-panel {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: 60vh;
+        border-radius: 20px 20px 0 0;
+        /* Rounded top only */
+        padding: 16px;
+        margin-bottom: 0;
+        /* Stick to bottom */
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .overlay-panel.collapsed {
+        width: 100%;
+        height: 60px;
+        /* Collapsed height */
+        padding: 0 16px;
+        /* Remove vertical padding */
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* When collapsed, we might want to show at least the toggle or a summary? 
+       For now, let's just make it a small bar. */
+
+    .collapse-btn {
+        top: -24px;
+        /* Position above the panel */
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        /* Remove rotation, keep centered */
+        width: 48px;
+        height: 24px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .collapse-btn svg {
+        transform: rotate(-90deg);
+        /* Rotate the icon (ChevronRight > becomes Up ^) */
+        transition: transform 0.3s;
+    }
+
+    .overlay-panel.collapsed .collapse-btn {
+        /* When collapsed, it points up (which is expand). 
+           Wait, logic is: isCollapsed ? Right (Expand) : Left (Collapse).
+           If I rotate -90deg:
+           ChevronLeft becomes ChevronUp (Collapse)
+           ChevronRight becomes ChevronDown (Expand) - wait,
+           ChevronRight (>) rotate(-90) -> Down (v). 
+           ChevronLeft (<) rotate(-90) -> Up (^).
+           
+           Logic in JSX: isCollapsed ? ChevronRight : ChevronLeft.
+           isCollapsed=true (Bar at bottom) -> Show ChevronRight -> Rotated -90 -> Down? 
+           This is confusing. Let's just override the Icon in CSS? No, can't change Icon SVG path in CSS.
+           We can rotate the container differently based on state.
+           if isCollapsed (needs expand) -> we want UP arrow. 
+           JSX shows ChevronRight. Right -> Up requires rotate(-90). Correct.
+
+           if !isCollapsed (open) -> we want DOWN arrow.
+           JSX shows ChevronLeft. Left -> Down requires rotate(-90). Correct.
+        */
+        top: -24px;
+        transform: translateX(-50%);
+        /* Icon rotation handles direction */
+    }
+
+    /* Ensure content is scrollable within limits */
+    .panel-scroll-content {
+        max-height: calc(60vh - 80px);
+        /* Adjust for header/padding */
+    }
+
+    /* Adjust cards for mobile */
+    .toggle-btn {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+    /* Hide the collapsed content completely to avoid spacing issues */
+    .overlay-panel.collapsed .toggle-container,
+    .overlay-panel.collapsed .panel-scroll-content,
+    .overlay-panel.collapsed .btn-view-all {
+        display: none;
+    }
+
+    /* Maybe show a "Tap to expand" text when collapsed? */
+    .overlay-panel.collapsed::after {
+        content: "Tap to expand";
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        top: 20px;
+        pointer-events: none;
+    }
+}

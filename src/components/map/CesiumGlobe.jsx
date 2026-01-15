@@ -134,7 +134,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
                 Promise.resolve(Cesium.Terrain.fromWorldTerrain())
                     .then(terrainProvider => {
                         if (viewerRef.current && !viewerRef.current.isDestroyed()) {
-                            viewer.scene.setTerrain(terrainProvider);
+                            viewerRef.current.scene.setTerrain(terrainProvider);
                         }
                     })
                     .catch(e => console.error("Failed to load terrain", e));
@@ -356,7 +356,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
                         semiMinorAxis: 80000.0,
                         semiMajorAxis: 80000.0,
                         material: new Cesium.ColorMaterialProperty(Cesium.Color.RED.withAlpha(0.3)),
-                        outline: true,
+                        outline: false, // Disabled to prevent terrain warning
                         outlineColor: Cesium.Color.RED
                     },
                     alertData: alert // Tag for cleanup

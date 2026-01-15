@@ -446,3 +446,75 @@ a {
         color: black;
     }
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    :root {
+        --header-height: 110px;
+        /* Increased height for double row header */
+    }
+
+    .app-header {
+        flex-wrap: wrap;
+        padding: 10px 16px;
+        height: auto;
+        min-height: var(--header-height);
+        align-content: flex-start;
+    }
+
+    .header-left {
+        order: 1;
+    }
+
+    .header-right {
+        order: 2;
+    }
+
+    /* Move search to second row */
+    .header-center {
+        order: 3;
+        width: 100%;
+        flex: 0 0 100%;
+        /* Force broken line */
+        margin-top: 12px;
+        padding: 0;
+        overflow: visible;
+    }
+
+    .search-wrapper {
+        max-width: 100%;
+    }
+
+    /* Adjust Content Overlay for mobile */
+    .content-overlay {
+        top: var(--header-height);
+        height: calc(100vh - var(--header-height));
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        /* Push content to bottom for mobile map feel */
+    }
+
+    /* Hide logo text on very small screens if needed, but keeping for now */
+    .logo-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .header-left span {
+        font-size: 1.2rem !important;
+    }
+
+    /* Reposition Date Control on Mobile */
+    .date-control-panel {
+        top: auto !important;
+        bottom: 140px !important;
+        right: 20px !important;
+        left: auto !important;
+        transform: none !important;
+        background: rgba(15, 23, 42, 0.9) !important;
+        width: max-content;
+    }
+
+}
