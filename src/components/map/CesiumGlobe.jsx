@@ -459,12 +459,9 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
                 </button>
             </div>
             <button
+                className="btn-reset-view"
                 onClick={resetView}
                 style={{
-                    position: 'absolute',
-                    bottom: '30px',
-                    right: '30px',
-                    zIndex: 1000,
                     padding: '10px 16px',
                     background: 'white',
                     border: 'none',

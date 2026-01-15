@@ -447,6 +447,13 @@ a {
     }
 }
 
+.btn-reset-view {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     :root {
@@ -517,4 +524,10 @@ a {
         width: max-content;
     }
 
+    /* Reposition Reset View on Mobile */
+    .btn-reset-view {
+        bottom: 90px !important;
+        /* Above collapsed panel (60px) + gap */
+        right: 20px !important;
+    }
 }
