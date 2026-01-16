@@ -104,7 +104,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
             // Use default imagery (Bing Maps Aerial) for best realism
             baseLayerPicker: false,
             geocoder: false,
-            homeButton: true,
+            homeButton: false, // Disabled default home button
             infoBox: false,
             sceneModePicker: false,
             selectionIndicator: false,
@@ -386,8 +386,8 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
             {/* Top Right Date Control */}
             <div className="date-control-panel" style={{
                 position: 'absolute',
-                top: '90px',
-                right: '20px',
+                top: '24px',
+                right: '24px',
                 zIndex: 1000,
                 display: 'flex',
                 alignItems: 'center',
