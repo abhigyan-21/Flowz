@@ -16,7 +16,9 @@ const WaterLoader = ({ onFinish }) => {
         <div className="water-loader-container">
             <div className="loader-text-wrapper">
                 <div className="loader-text">GIRIDHAR</div>
-                <div className="loader-tagline">AI Driven flood Prediction <b>.</b> Prevention <b>.</b> Rescue System</div>
+                <div className="loader-tagline">AI Driven flood
+                    <br />
+                    Prediction <b>.</b> Prevention <b>.</b> Rescue System</div>
             </div>
 
             <div className="water-fill">

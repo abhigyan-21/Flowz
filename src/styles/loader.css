@@ -157,3 +157,26 @@
         transform: translateY(0) scale(1);
     }
 }
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .loader-text {
+        font-size: 13vw;
+        /* Larger relative to width on mobile */
+        letter-spacing: 0.2em;
+        /* Reduce spacing slightly */
+    }
+
+    .loader-tagline {
+        font-size: 0.85rem;
+        padding: 0 1rem;
+        /* Prevent touching edges */
+        line-height: 1.4;
+        max-width: 90%;
+    }
+
+    .loader-text-wrapper {
+        padding-bottom: 5vh;
+        /* Adjust vertical centering visually */
+    }
+}
