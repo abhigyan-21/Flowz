@@ -57,7 +57,7 @@ const AboutUs = () => {
     return (
         <div style={containerStyle}>
             <div style={heroSection}>
-                <h1 style={gradientText}>Flowz</h1>
+                <h1 style={gradientText}>GIRIDHAR</h1>
                 <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                     Empowering communities with real-time flood monitoring, AI-driven predictions, and effective disaster response coordination.
                 </p>

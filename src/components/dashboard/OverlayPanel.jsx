@@ -49,124 +49,133 @@ const OverlayPanel = () => {
     const displayAlerts = alertSubTab === 'foryou' ? alerts.slice(0, 3) : alerts;
 
     return (
-        <div className={`overlay-panel ${isCollapsed ? 'collapsed' : ''}`}>
+        <div
+            className={`overlay-panel ${isCollapsed ? 'collapsed' : ''}`}
+            onClick={() => isCollapsed && setIsCollapsed(false)}
+        >
 
             {/* Collapse Toggle Button */}
             <div
                 className="collapse-btn"
-                onClick={() => setIsCollapsed(!isCollapsed)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setIsCollapsed(!isCollapsed);
+                }}
                 title={isCollapsed ? "Expand" : "Collapse"}
             >
                 {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
             </div>
 
-            {/* Main Toggle */}
-            <div className="toggle-container main-toggle">
-                <button
-                    className={`toggle-btn ${mainTab === 'alert' ? 'active' : ''}`}
-                    onClick={() => setMainTab('alert')}
-                >
-                    Alert
-                </button>
-                <button
-                    className={`toggle-btn ${mainTab === 'evacuation' ? 'active' : ''}`}
-                    onClick={() => setMainTab('evacuation')}
-                >
-                    Evacuation
-                </button>
-            </div>
+            {/* Content Wrapper for Scroll/Animation */}
+            <div className="panel-content-wrapper">
+                {/* Main Toggle */}
+                <div className="toggle-container main-toggle">
+                    <button
+                        className={`toggle-btn ${mainTab === 'alert' ? 'active' : ''}`}
+                        onClick={() => setMainTab('alert')}
+                    >
+                        Alert
+                    </button>
+                    <button
+                        className={`toggle-btn ${mainTab === 'evacuation' ? 'active' : ''}`}
+                        onClick={() => setMainTab('evacuation')}
+                    >
+                        Evacuation
+                    </button>
+                </div>
 
-            {/* Sub Tabs */}
-            <div className="toggle-container sub-toggle">
-                {mainTab === 'alert' ? (
-                    <>
-                        <button
-                            className={`toggle-btn ${alertSubTab === 'foryou' ? 'active' : ''}`}
-                            onClick={() => setAlertSubTab('foryou')}
-                        >
-                            For You
-                        </button>
-                        <button
-                            className={`toggle-btn ${alertSubTab === 'country' ? 'active' : ''}`}
-                            onClick={() => setAlertSubTab('country')}
-                        >
-                            Country wide
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <button
-                            className={`toggle-btn ${evacSubTab === 'routes' ? 'active' : ''}`}
-                            onClick={() => setEvacSubTab('routes')}
-                        >
-                            Routes
-                        </button>
-                        <button
-                            className={`toggle-btn ${evacSubTab === 'shelters' ? 'active' : ''}`}
-                            onClick={() => setEvacSubTab('shelters')}
-                        >
-                            Shelters
-                        </button>
-                    </>
-                )}
-            </div>
+                {/* Sub Tabs */}
+                <div className="toggle-container sub-toggle">
+                    {mainTab === 'alert' ? (
+                        <>
+                            <button
+                                className={`toggle-btn ${alertSubTab === 'foryou' ? 'active' : ''}`}
+                                onClick={() => setAlertSubTab('foryou')}
+                            >
+                                For You
+                            </button>
+                            <button
+                                className={`toggle-btn ${alertSubTab === 'country' ? 'active' : ''}`}
+                                onClick={() => setAlertSubTab('country')}
+                            >
+                                Country wide
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                className={`toggle-btn ${evacSubTab === 'routes' ? 'active' : ''}`}
+                                onClick={() => setEvacSubTab('routes')}
+                            >
+                                Routes
+                            </button>
+                            <button
+                                className={`toggle-btn ${evacSubTab === 'shelters' ? 'active' : ''}`}
+                                onClick={() => setEvacSubTab('shelters')}
+                            >
+                                Shelters
+                            </button>
+                        </>
+                    )}
+                </div>
 
-            <div className="panel-scroll-content">
-                {mainTab === 'alert' ? (
-                    <div className="alert-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {loading ? (
-                            <div className="alert-placeholder">Loading alerts...</div>
-                        ) : (
-                            displayAlerts.map(alert => (
-                                <AlertCard
-                                    key={alert.id}
-                                    severity={alert.severity.toLowerCase()}
-                                    title={alert.name}
-                                    content={`Type: ${alert.type}`}
-                                />
-                            ))
-                        )}
-                        {!loading && displayAlerts.length === 0 && (
-                            <div className="alert-placeholder">No active alerts.</div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="evac-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {loading && <div className="alert-placeholder">Loading...</div>}
-
-                        {!loading && evacSubTab === 'routes' && (
-                            evacData.routes.length > 0 ? (
-                                evacData.routes.map(route => (
+                <div className="panel-scroll-content">
+                    {mainTab === 'alert' ? (
+                        <div className="alert-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {loading ? (
+                                <div className="alert-placeholder">Loading alerts...</div>
+                            ) : (
+                                displayAlerts.map(alert => (
                                     <AlertCard
-                                        key={route.id}
-                                        severity={route.status === 'safe' ? 'info' : 'warning'}
-                                        type={route.status === 'safe' ? 'recommended' : ''}
-                                        title={route.name}
-                                        content={route.details}
+                                        key={alert.id}
+                                        severity={alert.severity.toLowerCase()}
+                                        title={alert.name}
+                                        content={`Type: ${alert.type}`}
                                     />
                                 ))
-                            ) : <div className="alert-placeholder">No routes found</div>
-                        )}
+                            )}
+                            {!loading && displayAlerts.length === 0 && (
+                                <div className="alert-placeholder">No active alerts.</div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="evac-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {loading && <div className="alert-placeholder">Loading...</div>}
 
-                        {!loading && evacSubTab === 'shelters' && (
-                            evacData.shelters.length > 0 ? (
-                                evacData.shelters.map(shelter => (
-                                    <AlertCard
-                                        key={shelter.id}
-                                        severity="info"
-                                        title={shelter.name}
-                                        content={`Capacity: ${shelter.capacity}. ${shelter.facilities}`}
-                                    />
-                                ))
-                            ) : <div className="alert-placeholder">No shelters found</div>
-                        )}
-                    </div>
-                )}
+                            {!loading && evacSubTab === 'routes' && (
+                                evacData.routes.length > 0 ? (
+                                    evacData.routes.map(route => (
+                                        <AlertCard
+                                            key={route.id}
+                                            severity={route.status === 'safe' ? 'info' : 'warning'}
+                                            type={route.status === 'safe' ? 'recommended' : ''}
+                                            title={route.name}
+                                            content={route.details}
+                                        />
+                                    ))
+                                ) : <div className="alert-placeholder">No routes found</div>
+                            )}
+
+                            {!loading && evacSubTab === 'shelters' && (
+                                evacData.shelters.length > 0 ? (
+                                    evacData.shelters.map(shelter => (
+                                        <AlertCard
+                                            key={shelter.id}
+                                            severity="info"
+                                            title={shelter.name}
+                                            content={`Capacity: ${shelter.capacity}. ${shelter.facilities}`}
+                                        />
+                                    ))
+                                ) : <div className="alert-placeholder">No shelters found</div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <Link to="/alerts" style={{ width: '100%' }}>
+                    <button className="btn-view-all">View All Alerts</button>
+                </Link>
             </div>
-
-            <Link to="/alerts" style={{ width: '100%' }}>
-                <button className="btn-view-all">View All Alerts</button>
-            </Link>
         </div>
     );
 };
