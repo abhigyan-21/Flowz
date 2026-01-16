@@ -3,7 +3,7 @@ import { Phone, Ambulance, Shield, HeartPulse } from 'lucide-react';
 
 const EmergencyContacts = () => {
     const containerStyle = {
-        padding: '20px 20px 20px', // Adjusted to match global layout
+        padding: '20px 20px 20px', 
         minHeight: '100vh',
         color: 'var(--text-primary)',
         display: 'flex',
