@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const AboutUs = () => {
     const containerStyle = {
-        padding: '100px 20px 20px',
+        padding: '20px',
         minHeight: '100vh',
         color: 'var(--text-primary)',
         display: 'flex',
@@ -66,7 +66,7 @@ const AboutUs = () => {
             <div style={cardStyle}>
                 <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>Our Mission</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.7' }}>
-                    To mitigate the impact of floods through advanced technology. Flowz integrates satellite imagery,
+                    To mitigate the impact of floods through advanced technology. Giridhar integrates satellite imagery,
                     ground sensor data, and predictive analytics to provide actionable insights for governments,
                     NGOs, and citizens, ensuring safety and minimizing loss.
                 </p>

@@ -197,6 +197,16 @@ a {
     flex-direction: column;
 }
 
+.main-content {
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+    /* Ensure content starts below the fixed header */
+    padding-top: var(--header-height);
+    position: relative;
+    z-index: 1;
+}
+
 .content-overlay {
     position: absolute;
     top: var(--header-height);

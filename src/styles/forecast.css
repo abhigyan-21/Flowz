@@ -3,7 +3,8 @@
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
-    padding-top: 80px;
+    /* Layout handles header/top offset */
+    padding-top: 24px;
 }
 
 .forecast-header h2 {

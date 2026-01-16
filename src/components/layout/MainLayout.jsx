@@ -18,7 +18,7 @@ const MainLayout = ({ children }) => {
             */}
             <div className="page-container" style={{ visibility: isLoading ? 'hidden' : 'visible', opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s ease-in' }}>
                 <Header />
-                <main style={{ flex: 1, position: 'relative', height: '100%', width: '100%', overflowY: 'auto' }}>
+                <main className="main-content">
                     {children}
                 </main>
             </div>
