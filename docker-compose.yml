@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with PostGIS
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: flood-postgres
+    environment:
+      POSTGRES_DB: flood_prediction
+      POSTGRES_USER: flood_user
+      POSTGRES_PASSWORD: flood_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - flood-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flood_user -d flood_prediction"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: flood-backend
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      FRONTEND_URL: http://localhost:5173
+      DATABASE_URL: postgresql://flood_user:flood_password@postgres:5432/flood_prediction
+      CDN_BASE_URL: https://cdn.yourapp.com
+      MOCK_MODE: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - flood-network
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # React Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: flood-frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - flood-network
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - ./vite.config.js:/app/vite.config.js
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+networks:
+  flood-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
