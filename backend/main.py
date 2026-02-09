@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from app.config import settings
-from app.routers import predictions, simulation, alerts, history, timeseries, config
+from app.routers import predictions, simulation, alerts, history, timeseries, config, dl_predictions
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,6 +37,7 @@ app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
 app.include_router(history.router, prefix="/api", tags=["History"])
 app.include_router(timeseries.router, prefix="/api", tags=["Time Series"])
 app.include_router(config.router, prefix="/api", tags=["Configuration"])
+app.include_router(dl_predictions.router, prefix="/api", tags=["Deep Learning Predictions"])
 
 @app.get("/")
 async def root():

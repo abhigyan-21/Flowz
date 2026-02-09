@@ -12,11 +12,8 @@ const MainLayout = ({ children }) => {
         <>
             {isLoading && <WaterLoader onFinish={() => setIsLoading(false)} />}
 
-            {/* 
-               We can choose to hide the content OR let it render behind. 
-               Rendering behind allows the globe to initialize while hidden.
-            */}
-            <div className="page-container" style={{ visibility: isLoading ? 'hidden' : 'visible', opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s ease-in' }}>
+            {/* Render content behind the loader so heavy components (Globe) can initialize while hidden visually. */}
+            <div className="page-container" style={{ pointerEvents: isLoading ? 'none' : 'auto' }}>
                 <Header />
                 <main className="main-content">
                     {children}

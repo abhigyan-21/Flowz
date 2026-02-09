@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles/loader.css';
 
-const WaterLoader = ({ onFinish }) => {
+const WaterLoader = ({ onFinish, durationMs = 4500 }) => {
     useEffect(() => {
-        // Animation takes about 3.5s to fill
-        // We wait a bit more then unmount
+        // Default duration is now longer (8000ms) to allow heavy renderers to finish.
         const timer = setTimeout(() => {
             if (onFinish) onFinish();
-        }, 4000); // 4 seconds total
+        }, durationMs);
 
         return () => clearTimeout(timer);
-    }, [onFinish]);
+    }, [onFinish, durationMs]);
 
     return (
         <div className="water-loader-container">
@@ -21,11 +20,18 @@ const WaterLoader = ({ onFinish }) => {
                     Prediction <b>.</b> Prevention <b>.</b> Rescue System</div>
             </div>
 
-            <div className="water-fill">
-                {/* 3 Wave Layers */}
-                <div className="wave back"></div>
-                <div className="wave middle"></div>
-                <div className="wave front"></div>
+            <div className="water-fill" style={{ animationDuration: `${durationMs}ms` }}>
+                {/* 3 Wave Layers - slow them relative to overall loader duration */}
+                {(() => {
+                    const factor = durationMs / 4000; // base CSS rise animation was 4s
+                    return (
+                        <>
+                            <div className="wave back" style={{ animationDuration: `${15 * factor}s` }}></div>
+                            <div className="wave middle" style={{ animationDuration: `${10 * factor}s` }}></div>
+                            <div className="wave front" style={{ animationDuration: `${6 * factor}s` }}></div>
+                        </>
+                    );
+                })()}
 
                 {/* Solid water body below waves */}
                 <div className="water-body"></div>

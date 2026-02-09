@@ -13,7 +13,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./backend/database/schema_dl.sql:/docker-entrypoint-initdb.d/02_schema_dl.sql
     networks:
       - flood-network
     healthcheck:
