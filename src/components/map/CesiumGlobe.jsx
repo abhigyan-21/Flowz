@@ -8,9 +8,11 @@ import { INDIA_OUTLINE } from '../../data/indiaOutline';
 // Token provided by user
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YWJlZGNhNC0yYjgwLTQxODMtYTJkZC1mNGMxN2I1YzI5MTUiLCJpZCI6Mzc0NDk5LCJpYXQiOjE3Njc0MTc5NDR9.JlBw7CT4ZHFSCUFkgzr1Y5hnDajNjw1NaG4_bqNuqVI';
 
-const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 }, onObjectClick, alerts = [] }) => {
+const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 }, onObjectClick, alerts = [], hourlyIndex = 0, hourlyImageUrlTemplate }) => {
     const containerRef = useRef(null);
     const viewerRef = useRef(null);
+    const hourlyLayerRef = useRef(null);
+    const fadeAnimRef = useRef(null);
     const { viewTarget } = useMap();
 
     // --- Date Control Logic ---
@@ -126,6 +128,9 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         controller.enableCollisionDetection = true; // Prevent going underground
         controller.minimumZoomDistance = 1000; // 1km min zoom
         controller.maximumZoomDistance = 20000000; // 20,000km max zoom
+        // Enable unrestricted rotation (360 degrees in all directions)
+        controller.inertia = 0.95;
+        controller.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG, Cesium.CameraEventType.PINCH];
 
         // Load Terrain (Async nature handled)
         try {
@@ -143,7 +148,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
             console.error("Failed to initialize terrain", e);
         }
 
-        // Set initial view focusing on India
+        // Set initial view focusing on West Bengal
         viewer.camera.setView({
             destination: Cesium.Cartesian3.fromDegrees(center.lng, center.lat, center.altitude),
             orientation: {
@@ -159,8 +164,68 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         viewer.scene.fog.density = 0.0001;
         viewer.scene.skyAtmosphere.show = true;
 
+        // Create initial hourly overlay imagery. If a template is provided (env or prop) we'll use it, otherwise generate a demo canvas.
+        try {
+            const template = hourlyImageUrlTemplate || import.meta.env.VITE_HOURLY_IMAGE_TEMPLATE || null;
+
+            const makeUrlForHour = (hour) => {
+                if (template) {
+                    // Replace common tokens {hour} or {h}
+                    return template.replace(/\{hour\}|\{h\}/g, String(hour).padStart(2, '0'));
+                }
+
+                // Fallback: generate a demo canvas data URL
+                const w = 1024;
+                const h = 512;
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                const hue = Math.round((hour / 24) * 360);
+                const g = ctx.createLinearGradient(0, 0, w, h);
+                g.addColorStop(0, `hsl(${hue}, 60%, 15%)`);
+                g.addColorStop(1, `hsl(${(hue + 40) % 360}, 60%, 35%)`);
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, w, h);
+                for (let i = 0; i < 60; i++) {
+                    ctx.globalAlpha = 0.02 + Math.random() * 0.04;
+                    ctx.fillStyle = `rgba(255,255,255,0.4)`;
+                    const rx = Math.random() * w;
+                    const ry = Math.random() * h;
+                    const r = 80 + Math.random() * 160;
+                    ctx.beginPath();
+                    ctx.ellipse(rx, ry, r, r * 0.6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 0.95;
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.font = '48px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(`${String(hour).padStart(2, '0')}:00`, w - 24, h - 28);
+                return canvas.toDataURL('image/png');
+            };
+
+            const initialUrl = makeUrlForHour(hourlyIndex || 0);
+
+            let provider;
+            if (template && (/\{x\}|\{y\}|\{z\}/i.test(template))) {
+                // Tile template provider (tiles served by backend)
+                provider = new Cesium.UrlTemplateImageryProvider({ url: initialUrl });
+            } else {
+                provider = new Cesium.SingleTileImageryProvider({ url: initialUrl });
+            }
+
+            const layer = viewer.imageryLayers.addImageryProvider(provider);
+            layer.alpha = 0.0; // start invisible; main frame will fade in via crossfade
+            hourlyLayerRef.current = layer;
+            // Fade-in initial layer
+            layer.alpha = 0.55;
+        } catch (e) {
+            console.warn('Hourly overlay initialization failed', e);
+        }
+
         // --- Animated River Flow (using Stripe Material Offset) ---
-        let startTime = Date.now();
+        // (Removed: animated river flow - now using solid colors)
 
         // --- Indian Rivers Data ---
         // Use the imported data directly
@@ -192,21 +257,13 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         RIVER_DATA.features.forEach(feature => {
             const smoothedPositions = getSmoothPath(feature.geometry.coordinates);
 
-            // Draw River Line
+            // Draw River Line - Solid color, no dashing
             const entity = viewer.entities.add({
                 name: feature.properties.name,
                 polyline: {
                     positions: smoothedPositions,
-                    width: 3, // Thinner lines (was 5)
-                    material: new Cesium.StripeMaterialProperty({
-                        evenColor: Cesium.Color.fromCssColorString(feature.properties.color).withAlpha(0.8),
-                        oddColor: Cesium.Color.fromCssColorString(feature.properties.color).withAlpha(0.1), // Lighter gap
-                        repeat: 10,
-                        offset: new Cesium.CallbackProperty(() => {
-                            return (Date.now() - startTime) * 0.0001; // Slower speed (was 0.0002)
-                        }, false),
-                        orientation: Cesium.StripeOrientation.VERTICAL
-                    }),
+                    width: 3,
+                    material: Cesium.Color.fromCssColorString(feature.properties.color).withAlpha(0.8),
                     clampToGround: true
                 }
             });
@@ -365,6 +422,81 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         });
 
     }, [alerts]);
+
+    // Update hourly overlay when hourlyIndex changes — crossfade between frames
+    useEffect(() => {
+        const viewer = viewerRef.current;
+        if (!viewer) return;
+
+        // Cancel any running fade animation
+        if (fadeAnimRef.current) {
+            cancelAnimationFrame(fadeAnimRef.current);
+            fadeAnimRef.current = null;
+        }
+
+        try {
+            const template = hourlyImageUrlTemplate || import.meta.env.VITE_HOURLY_IMAGE_TEMPLATE || null;
+            const makeUrlForHour = (hour) => {
+                if (template) return template.replace(/\{hour\}|\{h\}/g, String(hour).padStart(2, '0'));
+
+                // fallback generated canvas if no template
+                const w = 1024; const h = 512;
+                const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                const hue = Math.round((hour / 24) * 360);
+                const g = ctx.createLinearGradient(0, 0, w, h);
+                g.addColorStop(0, `hsl(${hue}, 60%, 15%)`);
+                g.addColorStop(1, `hsl(${(hue + 40) % 360}, 60%, 35%)`);
+                ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+                for (let i = 0; i < 60; i++) { ctx.globalAlpha = 0.02 + Math.random() * 0.04; ctx.fillStyle = `rgba(255,255,255,0.4)`; const rx = Math.random() * w; const ry = Math.random() * h; const r = 80 + Math.random() * 160; ctx.beginPath(); ctx.ellipse(rx, ry, r, r * 0.6, 0, 0, Math.PI * 2); ctx.fill(); }
+                ctx.globalAlpha = 0.95; ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '48px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(`${String(hour).padStart(2, '0')}:00`, w - 24, h - 28);
+                return canvas.toDataURL('image/png');
+            };
+
+            const url = makeUrlForHour(hourlyIndex || 0);
+            let provider;
+            if (template && (/\{x\}|\{y\}|\{z\}/i.test(template))) {
+                provider = new Cesium.UrlTemplateImageryProvider({ url });
+            } else {
+                provider = new Cesium.SingleTileImageryProvider({ url });
+            }
+
+            const newLayer = viewer.imageryLayers.addImageryProvider(provider);
+            newLayer.alpha = 0.0;
+
+            const oldLayer = hourlyLayerRef.current;
+            hourlyLayerRef.current = newLayer;
+
+            // Crossfade
+            const duration = 800;
+            const start = performance.now();
+            const step = (now) => {
+                const t = Math.min(1, (now - start) / duration);
+                newLayer.alpha = 0.55 * t;
+                if (oldLayer) oldLayer.alpha = 0.55 * (1 - t);
+                if (t < 1) {
+                    fadeAnimRef.current = requestAnimationFrame(step);
+                } else {
+                    if (oldLayer && viewer.imageryLayers.contains(oldLayer)) {
+                        try { viewer.imageryLayers.remove(oldLayer, false); } catch (e) { }
+                    }
+                    if (newLayer) newLayer.alpha = 0.55;
+                    fadeAnimRef.current = null;
+                }
+            };
+
+            fadeAnimRef.current = requestAnimationFrame(step);
+        } catch (e) {
+            console.warn('Failed to update hourly overlay', e);
+        }
+
+        return () => {
+            if (fadeAnimRef.current) {
+                cancelAnimationFrame(fadeAnimRef.current);
+                fadeAnimRef.current = null;
+            }
+        };
+    }, [hourlyIndex, hourlyImageUrlTemplate]);
 
     const resetView = () => {
         const viewer = viewerRef.current;

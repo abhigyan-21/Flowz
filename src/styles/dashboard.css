@@ -23,6 +23,11 @@
     color: var(--text-primary);
 }
 
+/* Smooth appearance for selected location panel when shown */
+.selected-location-panel--animated {
+    will-change: transform, opacity;
+}
+
 .panel-content-wrapper {
     flex: 1;
     display: flex;
