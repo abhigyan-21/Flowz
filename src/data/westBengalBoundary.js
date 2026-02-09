@@ -1,4 +1,4 @@
-// West Bengal State Boundary - Precise coordinates
+// West Bengal State Boundary Precise coordinates
 export const WEST_BENGAL_BOUNDARY = {
     type: "Feature",
     geometry: {
