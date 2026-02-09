@@ -368,7 +368,7 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         });
     }, [viewTarget]);
 
-    // Update Alerts
+    // Update Alerts with Ripple Animation
     useEffect(() => {
         const viewer = viewerRef.current;
         if (!viewer) return;
@@ -376,21 +376,33 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
         // Clean up old alerts (keep rivers)
         const entities = viewer.entities.values;
         for (let i = entities.length - 1; i >= 0; i--) {
-            if (entities[i].alertData) {
+            if (entities[i].alertData || entities[i].isRipple) {
                 viewer.entities.remove(entities[i]);
             }
         }
 
         alerts.forEach(alert => {
-            const color = alert.severity.toLowerCase() === 'high'
+            const baseColor = alert.severity.toLowerCase() === 'high'
                 ? Cesium.Color.RED
                 : (alert.severity.toLowerCase() === 'moderate' ? Cesium.Color.ORANGE : Cesium.Color.GREEN);
 
+            // Create center point (slow blinking)
             viewer.entities.add({
                 position: Cesium.Cartesian3.fromDegrees(alert.lng, alert.lat),
                 point: {
-                    pixelSize: 20,
-                    color: color,
+                    pixelSize: new Cesium.CallbackProperty(() => {
+                        // Slower blinking - 2 second cycle
+                        const time = Date.now() % 2000;
+                        const blink = Math.sin(time / 1000 * Math.PI) * 0.5 + 0.5; // 0-1
+                        const distance = Cesium.Cartesian3.distance(
+                            viewer.camera.position,
+                            Cesium.Cartesian3.fromDegrees(alert.lng, alert.lat)
+                        );
+                        // Base size 8-12px, scales with zoom, blinks
+                        const baseSize = Math.max(5, Math.min(15, 400000 / distance));
+                        return baseSize * (0.6 + blink * 0.4); // Blink between 60-100% of base
+                    }, false),
+                    color: baseColor,
                     outlineColor: Cesium.Color.WHITE,
                     outlineWidth: 2
                 },
@@ -406,17 +418,60 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
                 alertData: alert
             });
 
-            if (alert.severity.toLowerCase() === 'high') {
+            // Create ripple circles (3 concentric expanding circles)
+            for (let rippleIndex = 0; rippleIndex < 3; rippleIndex++) {
+                const semiMinorAxisCallback = new Cesium.CallbackProperty(() => {
+                    const time = Date.now() % 2000; // 2 second cycle per ripple
+                    const phase = (time / 2000 + rippleIndex * 0.33) % 1; // Stagger ripples
+                    const distance = Cesium.Cartesian3.distance(
+                        viewer.camera.position,
+                        Cesium.Cartesian3.fromDegrees(alert.lng, alert.lat)
+                    );
+                    // Base radius grows from 5km to 50km
+                    const baseRadius = 5000 + phase * 45000;
+                    const scaledRadius = Math.max(5000, Math.min(50000, distance * 0.2 + baseRadius * 0.5));
+                    return scaledRadius;
+                }, false);
+
+                const semiMajorAxisCallback = new Cesium.CallbackProperty(() => {
+                    const time = Date.now() % 2000;
+                    const phase = (time / 2000 + rippleIndex * 0.33) % 1;
+                    const distance = Cesium.Cartesian3.distance(
+                        viewer.camera.position,
+                        Cesium.Cartesian3.fromDegrees(alert.lng, alert.lat)
+                    );
+                    const baseRadius = 5000 + phase * 45000;
+                    const scaledRadius = Math.max(5000, Math.min(50000, distance * 0.2 + baseRadius * 0.5));
+                    // Ensure semiMajorAxis is always >= semiMinorAxis
+                    return Math.max(scaledRadius, scaledRadius * 1.001);
+                }, false);
+
                 viewer.entities.add({
                     position: Cesium.Cartesian3.fromDegrees(alert.lng, alert.lat),
                     ellipse: {
-                        semiMinorAxis: 80000.0,
-                        semiMajorAxis: 80000.0,
-                        material: new Cesium.ColorMaterialProperty(Cesium.Color.RED.withAlpha(0.3)),
-                        outline: false, // Disabled to prevent terrain warning
-                        outlineColor: Cesium.Color.RED
+                        semiMinorAxis: semiMinorAxisCallback,
+                        semiMajorAxis: semiMajorAxisCallback,
+                        material: new Cesium.ColorMaterialProperty(
+                            new Cesium.CallbackProperty(() => {
+                                const time = Date.now() % 2000;
+                                const phase = (time / 2000 + rippleIndex * 0.33) % 1;
+                                // Increased transparency so 3 layers are visible (0.3 instead of 0.15)
+                                const alpha = Math.max(0, (1 - phase) * 0.3);
+                                return baseColor.withAlpha(alpha);
+                            }, false)
+                        ),
+                        outline: true,
+                        outlineColor: new Cesium.CallbackProperty(() => {
+                            const time = Date.now() % 2000;
+                            const phase = (time / 2000 + rippleIndex * 0.33) % 1;
+                            // Increased outline transparency (0.45 instead of 0.25)
+                            const alpha = Math.max(0, (1 - phase) * 0.45);
+                            return baseColor.withAlpha(alpha);
+                        }, false),
+                        outlineWidth: 2
                     },
-                    alertData: alert // Tag for cleanup
+                    isRipple: true,
+                    alertData: alert
                 });
             }
         });

@@ -27,17 +27,27 @@ const OverlayPanel = () => {
                 setAlerts(alertsRes.data || []);
 
                 // Fetch Evacuation Data (Mocking parallel fetch)
-                const [routesRes, sheltersRes] = await Promise.all([
-                    evacuationService.getEvacuationPlan(),
-                    evacuationService.getShelters()
-                ]);
-                setEvacData({
-                    routes: routesRes.data.routes || [],
-                    shelters: sheltersRes.data || []
-                });
+                try {
+                    const [routesRes, sheltersRes] = await Promise.all([
+                        evacuationService.getEvacuationPlan(),
+                        evacuationService.getShelters()
+                    ]);
+                    setEvacData({
+                        routes: routesRes.data.routes || [],
+                        shelters: sheltersRes.data || []
+                    });
+                } catch (evacError) {
+                    console.warn("Evacuation data not available, using fallback:", evacError);
+                    // Use fallback data for evacuation
+                    setEvacData({
+                        routes: [],
+                        shelters: []
+                    });
+                }
 
             } catch (error) {
-                console.error("Failed to fetch data", error);
+                console.error("Failed to fetch alerts data", error);
+                setAlerts([]);
             } finally {
                 setLoading(false);
             }
