@@ -1,4 +1,4 @@
-# 🌊 Flowz - West Bengal Flood Prediction System
+# 🌊 Flowz - Flood Prediction System
 
 > A complete, production-ready flood prediction and response management system with real-time monitoring, ML-powered predictions, and interactive visualization.
 
@@ -37,6 +37,16 @@ Flowz is a comprehensive flood prediction and response management system designe
 The system provides flood monitoring, predictive analytics, evacuation planning, and alert management for disaster response teams.
 
 ---
+
+## **Latest Project Updates (2026-02-09)**
+
+- Backend replaced and extended with Deep Learning ingestion endpoints (`/api/predictions/ingest`, `/api/predictions/dl/summary`, `/api/predictions/dl/{id}`, etc.). See `backend/app/routers/dl_predictions.py`.
+- Model post-processing pipeline integrated into the repo at `backend/model_pipeline/` (NetCDF/GeoTIFF/preview generation, S3/CRF upload hooks).
+- Both database schemas are present: `backend/database/schema.sql` (original) and `backend/database/schema_dl.sql` (DL tables). `docker-compose.yml` maps both into the DB init folder.
+- Frontend Analytics page now fetches live DL summary from `/api/predictions/dl/summary` and falls back to local mock data when the backend is unreachable. See `src/services/analyticsService.js` and `src/pages/Analytics.jsx`.
+- Loader and layout UX: `src/components/ui/WaterLoader.jsx` accepts `durationMs` and `src/components/layout/MainLayout.jsx` renders content behind the loader to avoid a white flash while the globe initializes.
+- If you hit a backend install error on Windows related to `pydantic-core`, see the Quick Start troubleshooting notes below.
+
 
 ## ✨ Features
 
@@ -201,6 +211,28 @@ cp .env.example .env
 # Start backend server
 python main.py
 ```
+
+Notes & Windows troubleshooting:
+
+- On Windows, `pydantic-core` may attempt to build native wheels and require the Rust toolchain. If you see errors like "Cargo/Rust not found" or "pydantic-core metadata generation failed", either:
+  - Install Rust (recommended):
+    ```powershell
+    curl https://sh.rustup.rs -sSf | sh
+    ```
+    then re-open the terminal and run `pip install -r requirements.txt`.
+  - Or use WSL (Ubuntu) and install dependencies there, which often avoids native build issues.
+  - Alternatively, upgrade `pip` so binary wheels are preferred: `python -m pip install --upgrade pip` and retry.
+
+If installing native build toolchains is not possible, you can continue frontend development: the Analytics page uses a mock fallback so charts render without a running backend.
+
+Quick-test: ingest a sample DL prediction (once backend is running) to populate summaries:
+
+```bash
+curl -X POST http://localhost:8000/api/predictions/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"prediction_id":"test-001","location":{"region":"Test Region","basin":"TestBasin","bounds":{}},"grid_shape":{"timesteps":3,"rows":10,"cols":10},"raster_data":{"netcdf_crf_url":"https://example.com/netcdf","geotiff_urls":[],"preview_urls":[]},"aggregated_metrics":{"peak_depth_max":1.2,"affected_area_km2":12},"risk_assessment":{"severity_class":"MEDIUM","risk_score":45},"inference_timestamp":"2026-02-09T00:00:00Z","forecast_cycle":"2026-02-09T00:00:00Z"}'
+```
+
 
 Backend will be available at: **http://localhost:8000**
 
