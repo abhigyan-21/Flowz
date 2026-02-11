@@ -184,6 +184,12 @@ const CesiumGlobe = ({
         // Create initial hourly overlay imagery. If a template is provided (env or prop) we'll use it, otherwise generate a demo canvas.
         try {
             const template = hourlyImageUrlTemplate || import.meta.env.VITE_HOURLY_IMAGE_TEMPLATE || null;
+            // Debug: log which template/source is used (helps compare Vercel vs local)
+            try {
+                console.debug('[CesiumGlobe] hourly overlay template:', template);
+                console.debug('[CesiumGlobe] hourlyImageUrlTemplate prop:', hourlyImageUrlTemplate);
+                console.debug('[CesiumGlobe] env VITE_HOURLY_IMAGE_TEMPLATE:', import.meta.env.VITE_HOURLY_IMAGE_TEMPLATE);
+            } catch (e) { }
 
             const makeUrlForHour = (hour) => {
                 if (template) {
@@ -228,11 +234,26 @@ const CesiumGlobe = ({
             const initialUrl = makeUrlForHour(hourlyIndex || 0);
 
             let provider;
-            if (template && (/\{x\}|\{y\}|\{z\}/i.test(template))) {
-                // Tile template provider (tiles served by backend)
-                provider = new Cesium.UrlTemplateImageryProvider({ url: initialUrl });
-            } else {
-                provider = new Cesium.SingleTileImageryProvider({ url: initialUrl });
+            try {
+                if (template && (/\{x\}|\{y\}|\{z\}/i.test(template))) {
+                    // Tile template provider (tiles served by backend)
+                    provider = new Cesium.UrlTemplateImageryProvider({ url: initialUrl });
+                    console.debug('[CesiumGlobe] Using UrlTemplateImageryProvider for hourly overlay:', initialUrl);
+                } else {
+                    provider = new Cesium.SingleTileImageryProvider({ url: initialUrl });
+                    console.debug('[CesiumGlobe] Using SingleTileImageryProvider for hourly overlay:', initialUrl);
+                }
+            } catch (err) {
+                // If provider creation fails (DeveloperError / bad URL), fallback to generated canvas image
+                console.warn('[CesiumGlobe] hourly overlay provider creation failed, falling back to generated canvas', err);
+                try {
+                    const fallbackUrl = makeUrlForHour(hourlyIndex || 0);
+                    provider = new Cesium.SingleTileImageryProvider({ url: fallbackUrl });
+                    console.debug('[CesiumGlobe] Fallback SingleTileImageryProvider created with generated canvas');
+                } catch (err2) {
+                    console.error('[CesiumGlobe] Fallback imagery provider creation also failed', err2);
+                    throw err2;
+                }
             }
 
             const layer = viewer.imageryLayers.addImageryProvider(provider);
@@ -511,6 +532,9 @@ const CesiumGlobe = ({
 
         try {
             const template = hourlyImageUrlTemplate || import.meta.env.VITE_HOURLY_IMAGE_TEMPLATE || null;
+            try {
+                console.debug('[CesiumGlobe] update hourly overlay - template:', template);
+            } catch (e) { }
             const makeUrlForHour = (hour) => {
                 if (template) return template.replace(/\{hour\}|\{h\}/g, String(hour).padStart(2, '0'));
 
@@ -532,10 +556,24 @@ const CesiumGlobe = ({
 
             const url = makeUrlForHour(hourlyIndex || 0);
             let provider;
-            if (template && (/\{x\}|\{y\}|\{z\}/i.test(template))) {
-                provider = new Cesium.UrlTemplateImageryProvider({ url });
-            } else {
-                provider = new Cesium.SingleTileImageryProvider({ url });
+            try {
+                if (template && (/\{x\}|\{y\}|\{z\}/i.test(template))) {
+                    provider = new Cesium.UrlTemplateImageryProvider({ url });
+                    console.debug('[CesiumGlobe] update - using UrlTemplateImageryProvider:', url);
+                } else {
+                    provider = new Cesium.SingleTileImageryProvider({ url });
+                    console.debug('[CesiumGlobe] update - using SingleTileImageryProvider:', url);
+                }
+            } catch (err) {
+                console.warn('[CesiumGlobe] update - imagery provider failed, falling back to generated canvas', err);
+                try {
+                    const fallback = makeUrlForHour(hourlyIndex || 0);
+                    provider = new Cesium.SingleTileImageryProvider({ url: fallback });
+                    console.debug('[CesiumGlobe] update - fallback SingleTileImageryProvider created');
+                } catch (err2) {
+                    console.error('[CesiumGlobe] update - fallback provider creation failed', err2);
+                    throw err2;
+                }
             }
 
             const newLayer = viewer.imageryLayers.addImageryProvider(provider);
