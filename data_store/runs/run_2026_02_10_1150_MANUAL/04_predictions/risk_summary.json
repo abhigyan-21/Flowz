@@ -1,0 +1,13 @@
+[
+  {
+    "id": "run_2026_02_10_1150_MANUAL",
+    "location": "Kolkata Region",
+    "latitude": 22.5726,
+    "longitude": 88.3639,
+    "riskScore": 0.95,
+    "severityLevel": "CRITICAL",
+    "waterLevel": 3.2,
+    "status": "ACTIVE",
+    "timestamp": "2026-02-10T11:50:10.443544"
+  }
+]

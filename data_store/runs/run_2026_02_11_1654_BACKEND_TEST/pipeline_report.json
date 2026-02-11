@@ -1,0 +1,24 @@
+{
+  "run_id": "run_2026_02_11_1654_BACKEND_TEST",
+  "start_time": "2026-02-11T16:54:48.081564",
+  "status": "completed",
+  "stages": {
+    "01_ingestion": {
+      "status": "completed",
+      "output_dir": "C:\\Users\\abhig\\Desktop\\codes\\Flowz\\data_store\\runs\\run_2026_02_11_1654_BACKEND_TEST\\01_ingestion"
+    },
+    "02_lisflood_os": {
+      "status": "completed",
+      "output_dir": "C:\\Users\\abhig\\Desktop\\codes\\Flowz\\data_store\\runs\\run_2026_02_11_1654_BACKEND_TEST\\02_lisflood_os"
+    },
+    "03_lisflood_fp": {
+      "status": "completed",
+      "output_dir": "C:\\Users\\abhig\\Desktop\\codes\\Flowz\\data_store\\runs\\run_2026_02_11_1654_BACKEND_TEST\\03_lisflood_fp"
+    },
+    "04_ai_model": {
+      "status": "completed",
+      "output_dir": "C:\\Users\\abhig\\Desktop\\codes\\Flowz\\data_store\\runs\\run_2026_02_11_1654_BACKEND_TEST\\04_predictions"
+    }
+  },
+  "end_time": "2026-02-11T16:54:48.085422"
+}
