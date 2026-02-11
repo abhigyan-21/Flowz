@@ -17,7 +17,7 @@ def run_lisflood_os(run_id):
     output_dir = str(Config.get_stage_dir(run_id, 2))
     os.makedirs(output_dir, exist_ok=True)
     
-    print(f"🌊 Stage 02: LISFLOOD-OS Simulation for {run_id}")
+    print(f"Stage 02: LISFLOOD-OS Simulation for {run_id}")
     print(f"   Running 1D hydrodynamic flood simulation...")
     
     # Create simulation results
@@ -41,7 +41,7 @@ def run_lisflood_os(run_id):
     with open(os.path.join(output_dir, "lisflood_os_results.json"), 'w') as f:
         json.dump(simulation_results, f, indent=2)
     
-    print(f"   ✓ LISFLOOD-OS simulation complete")
+    print(f"   LISFLOOD-OS simulation complete")
     return output_dir
 
 if __name__ == "__main__":

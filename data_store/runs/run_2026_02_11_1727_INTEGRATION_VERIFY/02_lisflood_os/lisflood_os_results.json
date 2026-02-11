@@ -1,0 +1,16 @@
+{
+  "stage": "02_lisflood_os",
+  "status": "completed",
+  "simulation_parameters": {
+    "location": "Kolkata Region",
+    "latitude": 22.5726,
+    "longitude": 88.3639,
+    "simulation_duration_hours": 24,
+    "time_step_minutes": 5
+  },
+  "outputs": {
+    "water_depth_maps": "generated",
+    "flow_velocity": "generated",
+    "channel_discharge": "generated"
+  }
+}

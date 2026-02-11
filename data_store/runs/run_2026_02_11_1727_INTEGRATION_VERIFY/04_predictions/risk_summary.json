@@ -1,0 +1,15 @@
+{
+  "id": "pred_run_2026_02_11_1727_INTEGRATION_VERIFY",
+  "location": "West Bengal Test Region",
+  "latitude": 22.5726,
+  "longitude": 88.3639,
+  "riskScore": 0.46,
+  "severityLevel": "CRITICAL",
+  "waterLevel": 1.67,
+  "status": "ACTIVE",
+  "timestamp": "2026-02-11T17:27:12.659150",
+  "description": "AI-generated flood prediction for run_2026_02_11_1727_INTEGRATION_VERIFY",
+  "confidence": 0.91,
+  "affectedArea": 51.8,
+  "peakTime": "2026-02-11T17:27:12.659156"
+}

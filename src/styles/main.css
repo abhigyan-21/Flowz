@@ -541,3 +541,6 @@ a {
         right: 20px !important;
     }
 }
+
+/* Import pipeline styles */
+@import './pipeline.css';

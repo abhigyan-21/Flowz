@@ -17,7 +17,7 @@ def run_ingestion(run_id):
     output_dir = str(Config.get_stage_dir(run_id, 1))
     os.makedirs(output_dir, exist_ok=True)
     
-    print(f"📥 Stage 01: Data Ingestion for {run_id}")
+    print(f"Stage 01: Data Ingestion for {run_id}")
     print(f"   Loading data from various sources...")
     
     # Create a metadata file for this stage
@@ -36,7 +36,7 @@ def run_ingestion(run_id):
     with open(os.path.join(output_dir, "ingestion_metadata.json"), 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    print(f"   ✓ Data ingestion complete")
+    print(f"   Data ingestion complete")
     return output_dir
 
 if __name__ == "__main__":

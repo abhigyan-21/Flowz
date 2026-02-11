@@ -1,0 +1,17 @@
+{
+  "stage": "03_lisflood_fp",
+  "status": "completed",
+  "simulation_parameters": {
+    "location": "Kolkata Region",
+    "latitude": 22.5726,
+    "longitude": 88.3639,
+    "grid_resolution_meters": 30,
+    "total_simulation_time_hours": 48
+  },
+  "outputs": {
+    "inundation_depth_map": "generated",
+    "inundation_extent": "generated",
+    "peak_water_levels": "generated",
+    "hazard_rating": "computed"
+  }
+}

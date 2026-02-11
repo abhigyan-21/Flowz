@@ -10,10 +10,29 @@ from datetime import datetime
 
 # Import configuration and pipeline stages
 from config import Config
-from 01_ingestion.ingestion import run_ingestion
-from 02_lisflood_os.lisflood_os import run_lisflood_os
-from 03_lisflood_fp.lisflood_fp import run_lisflood_fp
-from 04_ai_model.inference import run_ai_inference
+import importlib.util
+import sys
+from pathlib import Path
+
+# Import modules with numeric prefixes using importlib
+def import_stage_module(stage_dir, module_name):
+    """Import a module from a directory with numeric prefix"""
+    module_path = Path(__file__).parent / stage_dir / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+# Import stage modules
+ingestion_module = import_stage_module("01_ingestion", "ingestion")
+lisflood_os_module = import_stage_module("02_lisflood_os", "lisflood_os")
+lisflood_fp_module = import_stage_module("03_lisflood_fp", "lisflood_fp")
+ai_model_module = import_stage_module("04_ai_model", "inference_simple")
+
+run_ingestion = ingestion_module.run_ingestion
+run_lisflood_os = lisflood_os_module.run_lisflood_os
+run_lisflood_fp = lisflood_fp_module.run_lisflood_fp
+run_ai_inference = ai_model_module.run_ai_inference
 
 def run_pipeline(run_id=None, custom_suffix="AUTO"):
     """
@@ -32,7 +51,7 @@ def run_pipeline(run_id=None, custom_suffix="AUTO"):
         run_id = Config.get_run_id(custom_suffix)
     
     print("\n" + "="*70)
-    print(f"🌊 FLOOD PREDICTION PIPELINE STARTED")
+    print(f"FLOOD PREDICTION PIPELINE STARTED")
     print(f"   Run ID: {run_id}")
     print(f"   Run-specific data will be saved to:")
     print(f"   {Config.get_run_dir(run_id)}")
@@ -105,7 +124,7 @@ def run_pipeline(run_id=None, custom_suffix="AUTO"):
             json.dump(pipeline_results, f, indent=2)
         
         print("\n" + "="*70)
-        print(f"✅ PIPELINE COMPLETED SUCCESSFULLY")
+        print(f"PIPELINE COMPLETED SUCCESSFULLY")
         print(f"   Run ID: {run_id}")
         print(f"   Results saved to: {Config.get_run_dir(run_id)}")
         print(f"   Report: {report_path}")
@@ -124,7 +143,7 @@ def run_pipeline(run_id=None, custom_suffix="AUTO"):
             json.dump(pipeline_results, f, indent=2)
         
         print("\n" + "="*70)
-        print(f"❌ PIPELINE FAILED")
+        print(f"PIPELINE FAILED")
         print(f"   Run ID: {run_id}")
         print(f"   Error: {str(e)}")
         print("="*70 + "\n")

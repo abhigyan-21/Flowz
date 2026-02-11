@@ -1,0 +1,11 @@
+{
+  "stage": "01_ingestion",
+  "status": "completed",
+  "timestamp": "C:\\Users\\abhig\\Desktop\\codes\\Flowz",
+  "data_sources": [
+    "Remote sensing imagery",
+    "Weather data",
+    "DEM (Digital Elevation Model)",
+    "River discharge measurements"
+  ]
+}

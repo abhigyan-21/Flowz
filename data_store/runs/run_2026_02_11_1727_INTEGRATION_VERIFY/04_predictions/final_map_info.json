@@ -1,0 +1,13 @@
+{
+  "filename": "final_map.tif",
+  "created": "2026-02-11T17:27:12.659486",
+  "bounds": {
+    "west": 88.0,
+    "east": 89.0,
+    "north": 23.0,
+    "south": 22.0
+  },
+  "resolution": "30m",
+  "crs": "EPSG:4326",
+  "note": "Mock GeoTIFF for integration testing"
+}

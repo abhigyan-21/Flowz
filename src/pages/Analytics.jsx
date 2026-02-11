@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import '../styles/analytics.css';
 import analyticsService from '../services/analyticsService';
+import PipelineControl from '../components/dashboard/PipelineControl';
 
 // Placeholder until API data loads
 const initialChartData = [];
@@ -76,6 +77,8 @@ const Analytics = () => {
                     <div className="stats-sub">Across recent predictions</div>
                 </div>
             </div>
+
+            <PipelineControl />
 
             {error && <div className="no-data">Error loading analytics: {error}</div>}
 
