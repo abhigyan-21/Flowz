@@ -198,10 +198,13 @@ const CesiumGlobe = ({
                 canvas.width = w;
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
+                // Use a cool blue palette for hourly overlays to avoid brown tint
                 const hue = Math.round((hour / 24) * 360);
                 const g = ctx.createLinearGradient(0, 0, w, h);
-                g.addColorStop(0, `hsl(${hue}, 60%, 15%)`);
-                g.addColorStop(1, `hsl(${(hue + 40) % 360}, 60%, 35%)`);
+                // Shift hue into blue range and use slightly higher lightness for better contrast
+                const baseHue = (hue + 200) % 360;
+                g.addColorStop(0, `hsl(${baseHue}, 65%, 18%)`);
+                g.addColorStop(1, `hsl(${(baseHue + 40) % 360}, 65%, 36%)`);
                 ctx.fillStyle = g;
                 ctx.fillRect(0, 0, w, h);
                 for (let i = 0; i < 60; i++) {
@@ -515,10 +518,12 @@ const CesiumGlobe = ({
                 const w = 1024; const h = 512;
                 const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
                 const ctx = canvas.getContext('2d');
+                // Use a cool blue palette for hourly overlays to avoid brown tint
                 const hue = Math.round((hour / 24) * 360);
                 const g = ctx.createLinearGradient(0, 0, w, h);
-                g.addColorStop(0, `hsl(${hue}, 60%, 15%)`);
-                g.addColorStop(1, `hsl(${(hue + 40) % 360}, 60%, 35%)`);
+                const baseHue = (hue + 200) % 360;
+                g.addColorStop(0, `hsl(${baseHue}, 65%, 18%)`);
+                g.addColorStop(1, `hsl(${(baseHue + 40) % 360}, 65%, 36%)`);
                 ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
                 for (let i = 0; i < 60; i++) { ctx.globalAlpha = 0.02 + Math.random() * 0.04; ctx.fillStyle = `rgba(255,255,255,0.4)`; const rx = Math.random() * w; const ry = Math.random() * h; const r = 80 + Math.random() * 160; ctx.beginPath(); ctx.ellipse(rx, ry, r, r * 0.6, 0, 0, Math.PI * 2); ctx.fill(); }
                 ctx.globalAlpha = 0.95; ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = '48px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(`${String(hour).padStart(2, '0')}:00`, w - 24, h - 28);
