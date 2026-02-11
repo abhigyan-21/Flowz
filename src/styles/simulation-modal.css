@@ -1,0 +1,90 @@
+/* Simulation Modal Styles */
+.sim-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.sim-modal-container {
+    width: 95%;
+    max-width: 1400px;
+    max-height: 95vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Scrollbar styling for modal */
+.sim-modal-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sim-modal-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sim-modal-container::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.3);
+    border-radius: 4px;
+}
+
+.sim-modal-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 195, 247, 0.5);
+}
+
+/* Responsive modals */
+@media (max-width: 1024px) {
+    .sim-modal-container {
+        width: 98%;
+        max-height: 90vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .sim-modal-overlay {
+        align-items: flex-end;
+    }
+
+    .sim-modal-container {
+        width: 100%;
+        max-width: 100%;
+        max-height: 95vh;
+        border-radius: 12px 12px 0 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .sim-modal-container {
+        max-height: 100vh;
+        border-radius: 0;
+    }
+}

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/dashboard.css';
-import AlertCard from './AlertCard';
+import AlertCardEnhanced from './AlertCardEnhanced';
 import alertService from '../../services/alertService';
 import evacuationService from '../../services/evacuationService';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const OverlayPanel = () => {
+const OverlayPanel = ({ onAlertClick }) => {
     const [mainTab, setMainTab] = useState('alert'); // 'alert' | 'evacuation'
     const [alertSubTab, setAlertSubTab] = useState('foryou'); // 'foryou' | 'country'
     const [evacSubTab, setEvacSubTab] = useState('routes'); // 'routes' | 'shelters'
@@ -136,11 +136,20 @@ const OverlayPanel = () => {
                                 <div className="alert-placeholder">Loading alerts...</div>
                             ) : (
                                 displayAlerts.map(alert => (
-                                    <AlertCard
+                                    <AlertCardEnhanced
                                         key={alert.id}
+                                        id={alert.id}
+                                        predictionId={alert.predictionId}
                                         severity={alert.severity.toLowerCase()}
-                                        title={alert.name}
-                                        content={`Type: ${alert.type}`}
+                                        title={alert.title || alert.name}
+                                        content={alert.description || `Type: ${alert.type}`}
+                                        location={alert.affectedRegions?.[0] || alert.location}
+                                        riskScore={alert.riskScore}
+                                        onClick={() => {
+                                            if (onAlertClick) {
+                                                onAlertClick(alert);
+                                            }
+                                        }}
                                     />
                                 ))
                             )}

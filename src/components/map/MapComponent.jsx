@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import CesiumGlobe from './CesiumGlobe';
 import Globe3D from './Globe3D'; // Fallback WebGL Globe
+import SimulationModal from '../dashboard/SimulationModal';
 import { WEST_BENGAL_CENTER } from '../../data/westBengalBoundary';
 import alertService from '../../services/alertService';
 
@@ -10,7 +11,11 @@ const MapComponent = ({ onObjectClick, onLocationSelect, selectedLocation: exter
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [hourlyIndex, setHourlyIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [showSimulation, setShowSimulation] = useState(false);
+    const [isSimulationActive, setIsSimulationActive] = useState(false);
+    const [simulationFrame, setSimulationFrame] = useState(0);
     const autoPlayRef = useRef(null);
+    const simulationPlayRef = useRef(null);
 
     // Use external selectedLocation if provided (from parent), otherwise use internal state
     const location = externalSelectedLocation !== undefined ? externalSelectedLocation : selectedLocation;
@@ -70,6 +75,27 @@ const MapComponent = ({ onObjectClick, onLocationSelect, selectedLocation: exter
         };
     }, [isPlaying, location]);
 
+    // Simulation animation loop - cycles through 24 frames for ArcGIS visualization
+    useEffect(() => {
+        if (isSimulationActive) {
+            simulationPlayRef.current = setInterval(() => {
+                setSimulationFrame((prevFrame) => (prevFrame + 1) % 24);
+            }, 500); // 500ms per frame for smooth animation
+        } else {
+            if (simulationPlayRef.current) {
+                clearInterval(simulationPlayRef.current);
+                simulationPlayRef.current = null;
+            }
+        }
+
+        return () => {
+            if (simulationPlayRef.current) {
+                clearInterval(simulationPlayRef.current);
+                simulationPlayRef.current = null;
+            }
+        };
+    }, [isSimulationActive]);
+
     // Helper to format hour label
     const formatHourLabel = (h) => {
         const hour = h % 24;
@@ -109,6 +135,10 @@ const MapComponent = ({ onObjectClick, onLocationSelect, selectedLocation: exter
                     alerts={alerts}
                     onObjectClick={handleObjectClick}
                     hourlyIndex={hourlyIndex}
+                    focusLocation={location}
+                    isSimulationActive={isSimulationActive}
+                    simulationFrame={simulationFrame}
+                    predictionId={location?.predictionId || location?.id}
                 />
             </ErrorBoundary>
             
@@ -321,9 +351,21 @@ const MapComponent = ({ onObjectClick, onLocationSelect, selectedLocation: exter
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <button
-                                onClick={() => setIsPlaying(p => !p)}
+                                onClick={() => {
+                                    const newPlayState = !isPlaying;
+                                    setIsPlaying(newPlayState);
+                                    // Activate simulation and modal when play is clicked
+                                    if (newPlayState && location?.id) {
+                                        setShowSimulation(true);
+                                        setIsSimulationActive(true);
+                                        setSimulationFrame(0);
+                                    } else {
+                                        setIsSimulationActive(false);
+                                        setSimulationFrame(0);
+                                    }
+                                }}
                                 style={{ background: 'transparent', border: 'none', color: isPlaying ? '#90CAF9' : '#E2E8F0', cursor: 'pointer' }}
-                                title={isPlaying ? 'Pause' : 'Play'}
+                                title={isPlaying ? 'Pause' : 'Play Simulation'}
                             >
                                 {isPlaying ? (
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -398,6 +440,14 @@ const MapComponent = ({ onObjectClick, onLocationSelect, selectedLocation: exter
                     }
                 }
             `}</style>
+
+            {/* Simulation Viewer Modal */}
+            <SimulationModal
+                isOpen={showSimulation}
+                predictionId={location?.id}
+                location={location}
+                onClose={() => setShowSimulation(false)}
+            />
         </div>
     );
 };

@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     MOCK_MODE: bool = True
     AUTO_REFRESH: bool = False
     
+    # ArcGIS Configuration
+    ARCGIS_API_KEY: Optional[str] = None
+    ENABLE_ARCGIS: bool = True
+    USE_MOCK_DATA: bool = False
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

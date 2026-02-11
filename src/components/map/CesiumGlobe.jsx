@@ -4,15 +4,32 @@ import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { INDIAN_RIVERS } from '../../data/indianRivers';
 import { INDIA_OUTLINE } from '../../data/indiaOutline';
+import arcgisVisualizationService from '../../services/arcgisVisualizationService';
 
-// Token provided by user
-Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YWJlZGNhNC0yYjgwLTQxODMtYTJkZC1mNGMxN2I1YzI5MTUiLCJpZCI6Mzc0NDk5LCJpYXQiOjE3Njc0MTc5NDR9.JlBw7CT4ZHFSCUFkgzr1Y5hnDajNjw1NaG4_bqNuqVI';
+// Load Cesium Ion token from environment or use default
+const cesiumToken = import.meta.env.VITE_CESIUM_ION_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YWJlZGNhNC0yYjgwLTQxODMtYTJkZC1mNGMxN2I1YzI5MTUiLCJpZCI6Mzc0NDk5LCJpYXQiOjE3Njc0MTc5NDR9.JlBw7CT4ZHFSCUFkgzr1Y5hnDajNjw1NaG4_bqNuqVI';
+Cesium.Ion.defaultAccessToken = cesiumToken;
 
-const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 }, onObjectClick, alerts = [], hourlyIndex = 0, hourlyImageUrlTemplate }) => {
+// Load ArcGIS API key from environment
+const arcgisApiKey = import.meta.env.VITE_ARCGIS_API_KEY;
+
+const CesiumGlobe = ({ 
+    center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 }, 
+    onObjectClick, 
+    alerts = [], 
+    hourlyIndex = 0, 
+    hourlyImageUrlTemplate, 
+    focusLocation = null,
+    isSimulationActive = false,
+    simulationFrame = 0,
+    predictionId = null
+}) => {
     const containerRef = useRef(null);
     const viewerRef = useRef(null);
     const hourlyLayerRef = useRef(null);
     const fadeAnimRef = useRef(null);
+    const simulationLayersRef = useRef([]);
+    const floodExtentDataSourceRef = useRef(null);
     const { viewTarget } = useMap();
 
     // --- Date Control Logic ---
@@ -552,6 +569,75 @@ const CesiumGlobe = ({ center = { lat: 22.5937, lng: 78.9629, altitude: 7000000 
             }
         };
     }, [hourlyIndex, hourlyImageUrlTemplate]);
+
+    // Zoom to focused location when alert is clicked
+    useEffect(() => {
+        const viewer = viewerRef.current;
+        if (!viewer || !focusLocation) return;
+
+        const lat = focusLocation.lat || focusLocation.latitude;
+        const lng = focusLocation.lng || focusLocation.longitude;
+
+        if (!lat || !lng) return;
+
+        // Zoom in to flood location: ~50km altitude for regional zoom
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(lng, lat, 50000),
+            orientation: {
+                heading: 0.0,
+                pitch: -Cesium.Math.PI_OVER_TWO,
+                roll: 0.0
+            },
+            duration: 2.0,
+            easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT
+        });
+    }, [focusLocation]);
+
+    // Load flood extent GeoJSON when simulation becomes active
+    useEffect(() => {
+        const viewer = viewerRef.current;
+        if (!viewer || !isSimulationActive || !predictionId) return;
+
+        const loadFloodExtent = async () => {
+            try {
+                const dataSource = await arcgisVisualizationService.addFloodExtentLayer(viewer, predictionId);
+                floodExtentDataSourceRef.current = dataSource;
+            } catch (error) {
+                console.error('Failed to load flood extent:', error);
+            }
+        };
+
+        loadFloodExtent();
+
+        return () => {
+            if (floodExtentDataSourceRef.current) {
+                viewer.dataSources.remove(floodExtentDataSourceRef.current);
+                floodExtentDataSourceRef.current = null;
+            }
+        };
+    }, [isSimulationActive, predictionId]);
+
+    // Animate simulation frames on the map
+    useEffect(() => {
+        const viewer = viewerRef.current;
+        if (!viewer || !isSimulationActive || !predictionId) return;
+
+        const updateSimulationFrame = async () => {
+            try {
+                // Get the image for current frame
+                const frameUrl = `/api/arcgis/simulations/${predictionId}/frame?time_offset=${simulationFrame}`;
+                
+                // Show/hide simulation layers based on current frame
+                simulationLayersRef.current.forEach((layer, index) => {
+                    layer.show = index === simulationFrame;
+                });
+            } catch (error) {
+                console.error('Failed to update simulation frame:', error);
+            }
+        };
+
+        updateSimulationFrame();
+    }, [isSimulationActive, simulationFrame, predictionId]);
 
     const resetView = () => {
         const viewer = viewerRef.current;

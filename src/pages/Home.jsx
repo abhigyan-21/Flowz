@@ -5,6 +5,11 @@ import OverlayPanel from '../components/dashboard/OverlayPanel';
 const Home = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
 
+    const handleAlertClick = (alertData) => {
+        // Pass the complete alert data to focus on the location
+        setSelectedLocation(alertData);
+    };
+
     return (
         <>
             <MapComponent 
@@ -13,7 +18,7 @@ const Home = () => {
             />
             {/* Keep the OverlayPanel visible even when a location is selected */}
             <div className="content-overlay">
-                <OverlayPanel />
+                <OverlayPanel onAlertClick={handleAlertClick} />
             </div>
         </>
     );
